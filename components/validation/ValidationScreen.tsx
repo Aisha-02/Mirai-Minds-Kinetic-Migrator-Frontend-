@@ -14,8 +14,7 @@ import {
   executeCleanup,
   isNeedsBusinessObjectCleanup,
   safeCleanupErrorMessage,
-  type CleanupSessionPublic,
-  type ExecuteCleanupWithSession,
+  type ExecuteCleanupResponse,
 } from "@/lib/api/validation";
 
 export function ValidationScreen() {
@@ -26,8 +25,7 @@ export function ValidationScreen() {
   const [needsBo, setNeedsBo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<ExecuteCleanupWithSession | null>(null);
-  const [session, setSession] = useState<CleanupSessionPublic | null>(null);
+  const [result, setResult] = useState<ExecuteCleanupResponse | null>(null);
 
   async function handleExecute() {
     if (!file) {
@@ -43,9 +41,7 @@ export function ValidationScreen() {
         businessObject: businessObject || undefined,
       });
       setResult(response);
-      setSession(response.session);
       setNeedsBo(false);
-      setAssistantOpen(true);
     } catch (err) {
       if (isNeedsBusinessObjectCleanup(err)) {
         setNeedsBo(true);
@@ -75,22 +71,6 @@ export function ValidationScreen() {
       <AiAssistantPanel
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
-        session={session}
-        onSessionUpdated={setSession}
-        onReportRefreshed={({ session: nextSession, findings, report, summary }) => {
-          setSession(nextSession);
-          setResult((current) =>
-            current
-              ? {
-                  ...current,
-                  findings,
-                  report,
-                  summary,
-                  session: nextSession,
-                }
-              : current,
-          );
-        }}
       />
 
       <main
@@ -134,27 +114,21 @@ export function ValidationScreen() {
               onFileSelected={(next) => {
                 setFile(next);
                 setResult(null);
-                setSession(null);
                 setError(null);
               }}
             />
             <div className="col-span-12 flex flex-col gap-4 lg:col-span-4">
               <ActiveRulesetCard
                 businessObject={
-                  session?.businessObject ||
                   result?.rulesBusinessObject ||
                   result?.detection?.businessObject ||
                   null
                 }
-                ruleSetId={session?.ruleSetId || result?.ruleSet?.id || null}
-                rulesChecked={
-                  session?.summary?.rulesChecked ??
-                  result?.summary?.rulesChecked ??
-                  null
-                }
+                ruleSetId={result?.ruleSet?.id || null}
+                rulesChecked={result?.summary?.rulesChecked ?? null}
                 statusLabel={
-                  session
-                    ? "Session saved · chat enabled"
+                  result
+                    ? `Rules via Lambda (${result.evaluator || "local"})`
                     : "Waiting for execute"
                 }
               />
@@ -168,7 +142,6 @@ export function ValidationScreen() {
 
           <CleaningReport
             result={result}
-            session={session}
             onSuggestAi={() => setAssistantOpen(true)}
           />
         </div>
