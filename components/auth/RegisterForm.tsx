@@ -8,6 +8,7 @@ import { TextField } from "@/components/ui/TextField";
 import { registerAccount } from "@/lib/api/auth";
 import {
   mockRegisterDefaults,
+  placeholderTermsSections,
   registerCopy,
   registerPlaceholders,
   type RegisterFormValues,
@@ -48,7 +49,7 @@ export function RegisterForm({
       return "Passwords do not match";
     }
     if (!current.agreeToTerms) {
-      return "Please agree to the Terms of Service and Privacy Policy";
+      return "Please accept the Terms and Conditions";
     }
     return null;
   }
@@ -68,7 +69,13 @@ export function RegisterForm({
     setSubmitting(true);
 
     try {
-      await registerAccount(values.email.trim(), values.password, values.role);
+      await registerAccount(
+        values.email.trim(),
+        values.password,
+        values.role,
+        values.fullName.trim(),
+        true,
+      );
       setSuccess("Account created. Redirecting to sign in…");
       router.push("/signin");
     } catch (err) {
@@ -175,19 +182,41 @@ export function RegisterForm({
           autoComplete="new-password"
         />
 
+        <section
+          className="flex flex-col gap-2 rounded-lg border border-outline-variant bg-surface-container px-3 py-3"
+          aria-labelledby="terms-heading"
+        >
+          <h2
+            id="terms-heading"
+            className="font-label-caps text-label-caps text-on-surface-variant"
+          >
+            {registerCopy.termsHeading}
+          </h2>
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            {registerCopy.termsDisclaimer}
+          </p>
+          <div className="max-h-40 overflow-y-auto rounded-lg border border-outline-variant bg-surface-container-high px-3 py-2">
+            <div className="flex flex-col gap-3">
+              {placeholderTermsSections.map((section) => (
+                <div key={section.title} className="flex flex-col gap-1">
+                  <h3 className="font-body-sm text-body-sm font-semibold text-on-surface">
+                    {section.title}
+                  </h3>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant">
+                    {section.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <Checkbox
           id="terms"
           checked={values.agreeToTerms}
           onChange={(event) => updateField("agreeToTerms", event.target.checked)}
           required
-          label={
-            <>
-              {registerCopy.termsPrefix}{" "}
-              <span className="text-brand-blue">{registerCopy.termsOfService}</span>{" "}
-              &amp;{" "}
-              <span className="text-brand-blue">{registerCopy.privacyPolicy}</span>
-            </>
-          }
+          label={registerCopy.termsPrefix}
         />
       </div>
 
@@ -202,7 +231,12 @@ export function RegisterForm({
         </p>
       ) : null}
 
-      <Button type="submit" fullWidth disabled={submitting}>
+      <Button
+        type="submit"
+        fullWidth
+        disabled={submitting || !values.agreeToTerms}
+        className="disabled:cursor-not-allowed disabled:opacity-50"
+      >
         {submitting ? "Creating account…" : registerCopy.submitLabel}
       </Button>
     </form>
