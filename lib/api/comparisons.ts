@@ -194,6 +194,53 @@ export async function fetchBatchFileData(
   return parseJson(response);
 }
 
+export type ComparisonSummaryCounts = {
+  missingRecords: number;
+  missingValues: number;
+  valueMismatches: number;
+  duplicateRecords: number;
+  baselineDuplicates: number;
+  extraRecords: number;
+  total: number;
+};
+
+export type ComparisonHistoryBatch = {
+  batch_id: string;
+  created_at: string;
+  business_object: string | null;
+  detection_confidence: string | null;
+  preload: { filename: string; uploaded_at: string } | null;
+  postload: { filename: string; uploaded_at: string } | null;
+  status: "pending" | "processing" | "completed" | "failed" | string;
+  report_completed_at: string | null;
+  summary: ComparisonSummaryCounts | null;
+};
+
+export type ComparisonHistoryResponse = {
+  batches: ComparisonHistoryBatch[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export async function fetchComparisonHistory(options?: {
+  page?: number;
+  limit?: number;
+}): Promise<ComparisonHistoryResponse> {
+  const page = options?.page ?? 1;
+  const limit = options?.limit ?? 20;
+  const response = await apiFetch(
+    `/api/comparisons?page=${page}&limit=${limit}`,
+  );
+  if (!response.ok) {
+    throw new Error(await readApiError(response));
+  }
+  return parseJson(response);
+}
+
 export function isNeedsBusinessObject(
   err: unknown,
 ): err is ComparisonApiError & { body: NeedsBusinessObjectError } {

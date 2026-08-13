@@ -21,8 +21,8 @@ export function AdminSideNav({ activeKey }: AdminSideNavProps) {
 
   useEffect(() => {
     const user = getStoredAuthUser();
-    if (user?.email) {
-      setUserLabel(user.email);
+    if (user?.full_name || user?.email) {
+      setUserLabel(user.full_name || user.email);
     }
   }, []);
 
