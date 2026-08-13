@@ -81,7 +81,7 @@ export function SourceDataUpload({
         </button>
         <input
           ref={inputRef}
-          accept=".csv,.xlsx"
+          accept=".csv,.xlsx,.json"
           className="hidden"
           type="file"
           disabled={disabled}

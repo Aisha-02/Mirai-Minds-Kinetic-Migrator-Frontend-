@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { RegisterRoleToggle } from "@/components/auth/RegisterRoleToggle";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { TextField } from "@/components/ui/TextField";
@@ -81,6 +83,11 @@ export function RegisterForm({
   return (
     <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
       <div className="flex flex-col gap-4">
+        <RegisterRoleToggle
+          value={values.role}
+          onChange={(role) => updateField("role", role)}
+        />
+
         <TextField
           id="fullName"
           label={registerCopy.fullNameLabel}
@@ -104,52 +111,6 @@ export function RegisterForm({
           required
           autoComplete="email"
         />
-
-        <fieldset className="flex flex-col gap-2">
-          <legend className="font-label-caps text-label-caps text-on-surface-variant">
-            {registerCopy.roleLabel}
-          </legend>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label
-              className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-3 transition-colors ${
-                values.role === "normal_user"
-                  ? "border-primary bg-primary/10"
-                  : "border-outline-variant bg-surface-container"
-              }`}
-            >
-              <input
-                type="radio"
-                name="role"
-                value="normal_user"
-                checked={values.role === "normal_user"}
-                onChange={() => updateField("role", "normal_user")}
-                className="mt-1"
-              />
-              <span className="font-body-sm text-body-sm text-on-surface">
-                {registerCopy.roleUserLabel}
-              </span>
-            </label>
-            <label
-              className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-3 transition-colors ${
-                values.role === "admin"
-                  ? "border-primary bg-primary/10"
-                  : "border-outline-variant bg-surface-container"
-              }`}
-            >
-              <input
-                type="radio"
-                name="role"
-                value="admin"
-                checked={values.role === "admin"}
-                onChange={() => updateField("role", "admin")}
-                className="mt-1"
-              />
-              <span className="font-body-sm text-body-sm text-on-surface">
-                {registerCopy.roleAdminLabel}
-              </span>
-            </label>
-          </div>
-        </fieldset>
 
         <TextField
           id="password"
@@ -183,9 +144,21 @@ export function RegisterForm({
           label={
             <>
               {registerCopy.termsPrefix}{" "}
-              <span className="text-brand-blue">{registerCopy.termsOfService}</span>{" "}
+              <Link
+                href={registerCopy.termsHref}
+                className="text-brand-blue transition-colors hover:text-primary"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {registerCopy.termsOfService}
+              </Link>{" "}
               &amp;{" "}
-              <span className="text-brand-blue">{registerCopy.privacyPolicy}</span>
+              <Link
+                href={registerCopy.privacyHref}
+                className="text-brand-blue transition-colors hover:text-primary"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {registerCopy.privacyPolicy}
+              </Link>
             </>
           }
         />

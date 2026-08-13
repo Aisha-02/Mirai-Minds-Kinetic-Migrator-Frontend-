@@ -128,31 +128,35 @@ export function TopAppBar({
 
   if (isValidation) {
     return (
-      <header
-        className={`fixed top-0 right-0 left-sidebar-width z-30 flex h-16 items-center justify-between border-b border-white/5 bg-surface/40 px-8 shadow-sm backdrop-blur-[40px] transition-[right] duration-300 ${
-          assistantOpen ? "xl:right-assistant-panel-width" : ""
-        }`}
-      >
+      <header className="fixed top-0 right-0 left-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-surface/40 px-8 shadow-sm backdrop-blur-[40px] md:left-sidebar-width">
         <div className="flex items-center gap-4">
           <h2 className="font-headline-md text-headline-md font-black text-primary">
             {workspaceCopy.productName}
           </h2>
         </div>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="cursor-pointer text-on-surface-variant transition-all hover:text-primary"
-            aria-label="Notifications"
-          >
-            <Icon name="notifications" />
-          </button>
-          <button
-            type="button"
-            className="cursor-pointer text-on-surface-variant transition-all hover:text-primary"
-            aria-label="Settings"
-          >
-            <Icon name="settings" />
-          </button>
+        <div className="flex items-center gap-6">
+          <div className="hidden items-center gap-2 sm:flex">
+            <div className="h-2 w-2 rounded-full bg-status-healthy" />
+            <span className="font-label-caps text-label-caps text-on-surface-variant">
+              {workspaceCopy.systemHealthy}
+            </span>
+          </div>
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="font-label-caps text-label-caps text-on-surface-variant">
+              {workspaceCopy.statusOnline}
+            </span>
+          </div>
+          <div className="ml-2 flex items-center gap-3">
+            <div className="ml-2 h-8 w-8 overflow-hidden rounded-full border border-white/20">
+              <Image
+                src="/user-avatar.png"
+                alt={workspaceCopy.avatarAlt}
+                width={32}
+                height={32}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
         </div>
       </header>
     );

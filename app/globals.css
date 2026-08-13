@@ -23,6 +23,7 @@
   --color-on-primary-container: #002c46;
   --color-primary-fixed: #cbe6ff;
   --color-primary-fixed-dim: #90cdff;
+  --color-on-primary-fixed: #001e30;
   --color-secondary: #d0bcff;
   --color-on-secondary: #3c0091;
   --color-secondary-container: #571bc1;
@@ -69,6 +70,42 @@
     -webkit-backdrop-filter: blur(40px);
     border: 1px solid rgba(137, 146, 155, 0.2);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .surface-glass {
+    background-color: rgba(24, 28, 32, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(137, 146, 155, 0.1);
+  }
+
+  .legal-content h2 {
+    color: #008fd3;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .legal-content h3 {
+    color: var(--color-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .legal-content p {
+    margin-bottom: 1rem;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 400;
   }
 
   .glow-input:focus-within {
