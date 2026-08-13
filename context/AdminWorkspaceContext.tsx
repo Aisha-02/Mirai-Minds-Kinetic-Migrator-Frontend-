@@ -65,6 +65,7 @@ type AdminWorkspaceContextValue = {
   setSelectedBusinessObject: (businessObject: string) => void;
   generateRules: (options?: { force?: boolean }) => Promise<void>;
   generateMappings: (options?: { force?: boolean }) => Promise<void>;
+  setRulesDraft: (draft: RulesDraft | null) => void;
   setRulesStatus: (status: string | null) => void;
   setRulesError: (error: string | null) => void;
 };
@@ -456,6 +457,7 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
       setSelectedBusinessObject,
       generateRules,
       generateMappings,
+      setRulesDraft,
       setRulesStatus,
       setRulesError,
     }),
@@ -482,6 +484,7 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
       setSelectedBusinessObject,
       generateRules,
       generateMappings,
+      setRulesDraft,
     ],
   );
 

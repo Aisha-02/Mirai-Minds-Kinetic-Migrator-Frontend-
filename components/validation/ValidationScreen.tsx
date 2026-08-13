@@ -53,6 +53,13 @@ export function ValidationScreen() {
       });
       setResult(response);
       setNeedsBo(false);
+      if (response.autoFix?.ok) {
+        setAutoFixResult({
+          sessionId: response.sessionId,
+          ...response.autoFix,
+        });
+        lastAutoFixSessionRef.current = response.sessionId;
+      }
     } catch (err) {
       if (isNeedsBusinessObjectCleanup(err)) {
         setNeedsBo(true);

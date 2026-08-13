@@ -70,15 +70,26 @@ function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
               >
                 {finding.summary}
               </p>
-              <span
-                className={`shrink-0 rounded border px-2 py-1 font-label-caps text-label-caps ${
-                  finding.severity === "warning"
-                    ? "border-tertiary/40 text-tertiary"
-                    : "border-error/40 text-error"
-                }`}
-              >
-                {finding.severity}
-              </span>
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                {finding.rule?.source ? (
+                  <span className="rounded border border-white/20 px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
+                    {String(finding.rule.source).toUpperCase() === "CUSTOM"
+                      ? "Custom"
+                      : String(finding.rule.source).toUpperCase() === "PREDEFINED"
+                        ? "Predefined"
+                        : "AI"}
+                  </span>
+                ) : null}
+                <span
+                  className={`rounded border px-2 py-1 font-label-caps text-label-caps ${
+                    finding.severity === "warning"
+                      ? "border-tertiary/40 text-tertiary"
+                      : "border-error/40 text-error"
+                  }`}
+                >
+                  {finding.severity}
+                </span>
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-3 font-body-sm text-body-sm text-on-surface-variant">

@@ -88,6 +88,7 @@ export type ExecuteCleanupResponse = {
   report: PlainLanguageReport;
   previewRows: Record<string, unknown>[];
   evaluator?: string;
+  autoFix?: AutoFixResponse;
 };
 
 export type AutoFixResponse = {

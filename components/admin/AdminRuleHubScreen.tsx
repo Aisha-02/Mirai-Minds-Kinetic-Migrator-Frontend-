@@ -5,19 +5,36 @@ import { AdminAiAssistantPanel } from "@/components/admin/AdminAiAssistantPanel"
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminSideNav } from "@/components/admin/AdminSideNav";
 import { BusinessObjectCard } from "@/components/admin/BusinessObjectCard";
+import {
+  CustomValidationRuleDialog,
+  valuesFromRule,
+  type CustomRuleFormValues,
+} from "@/components/admin/CustomValidationRuleDialog";
 import { SourceDataRulesCard } from "@/components/admin/SourceDataRulesCard";
 import {
   ValidationSelectionCard,
-  collectAiRuleCards,
+  collectDisplayedRuleCards,
+  type DisplayedRuleCard,
 } from "@/components/admin/ValidationSelectionCard";
 import { TopAppBar } from "@/components/layout/TopAppBar";
 import { Icon } from "@/components/ui/Icon";
 import { useAdminWorkspace } from "@/context/AdminWorkspaceContext";
-import { saveValidationRules } from "@/lib/api/rules";
+import {
+  createCustomValidationRule,
+  deleteCustomValidationRule,
+  removeRuleFromDraft,
+  saveValidationRules,
+  updateCustomValidationRule,
+  upsertRuleInDraft,
+} from "@/lib/api/rules";
 
 export function AdminRuleHubScreen() {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogSaving, setDialogSaving] = useState(false);
+  const [dialogError, setDialogError] = useState<string | null>(null);
+  const [editingCard, setEditingCard] = useState<DisplayedRuleCard | null>(null);
 
   const {
     sourceFile,
@@ -37,12 +54,16 @@ export function AdminRuleHubScreen() {
     setSelectedBusinessObject,
     generateRules,
     generateMappings,
+    setRulesDraft,
     setRulesStatus,
     setRulesError,
   } = useAdminWorkspace();
 
   const fields = rulesDraft?.fields ?? [];
-  const aiRules = useMemo(() => collectAiRuleCards(fields), [fields]);
+  const displayedRules = useMemo(
+    () => collectDisplayedRuleCards(fields),
+    [fields],
+  );
   const predefinedCount = useMemo(
     () =>
       fields.reduce(
@@ -55,11 +76,15 @@ export function AdminRuleHubScreen() {
       ),
     [fields],
   );
+  const fieldOptions = useMemo(
+    () => fields.map((field) => field.fieldName).filter(Boolean),
+    [fields],
+  );
 
   const displayFileName = sourceFile?.name ?? fileMeta?.name ?? null;
   const hasSource = Boolean(sourceFile || fileMeta);
   const busy =
-    generatingRules || generatingMappings || saving || uploadingSchema;
+    generatingRules || generatingMappings || saving || uploadingSchema || dialogSaving;
 
   const businessObjectLabel =
     businessObjectOptions.find((option) => option.id === selectedBusinessObject)
@@ -83,6 +108,97 @@ export function AdminRuleHubScreen() {
     }
   }
 
+  function openCreateDialog() {
+    setEditingCard(null);
+    setDialogError(null);
+    setDialogOpen(true);
+  }
+
+  function openEditDialog(card: DisplayedRuleCard) {
+    setEditingCard(card);
+    setDialogError(null);
+    setDialogOpen(true);
+  }
+
+  async function handleCustomSubmit(values: CustomRuleFormValues) {
+    if (!selectedBusinessObject) {
+      setDialogError("Select a business object first");
+      return;
+    }
+
+    setDialogSaving(true);
+    setDialogError(null);
+    try {
+      const logic = values.logic.trim();
+      const fieldName = values.fieldName.trim();
+      const payload = {
+        businessObject: selectedBusinessObject,
+        fieldName,
+        ruleName: `Custom transformation (${fieldName})`,
+        constraint: logic,
+        description: logic,
+        type: "transformation",
+        category: "transformation",
+        severity: "warning",
+      };
+
+      const result = editingCard?.rule.ruleId
+        ? await updateCustomValidationRule(editingCard.rule.ruleId, payload)
+        : await createCustomValidationRule(payload);
+
+      const savedRule = {
+        ...result.rule,
+        source: "CUSTOM" as const,
+      };
+      setRulesDraft(
+        upsertRuleInDraft(
+          rulesDraft,
+          selectedBusinessObject,
+          fieldName,
+          savedRule,
+        ),
+      );
+      setRulesStatus(
+        editingCard
+          ? "Custom rule updated. AI rules were left unchanged."
+          : "Custom rule saved alongside AI-generated rules.",
+      );
+      setDialogOpen(false);
+      setEditingCard(null);
+    } catch (err) {
+      setDialogError(
+        err instanceof Error ? err.message : "Failed to save custom rule",
+      );
+    } finally {
+      setDialogSaving(false);
+    }
+  }
+
+  async function handleDeleteCustom(card: DisplayedRuleCard) {
+    const ruleId = card.rule.ruleId;
+    if (!ruleId) return;
+    if (
+      !window.confirm(
+        `Delete custom rule "${card.title}" for ${card.fieldName}? AI rules will not be changed.`,
+      )
+    ) {
+      return;
+    }
+
+    setRulesError(null);
+    try {
+      await deleteCustomValidationRule(ruleId, {
+        businessObject: selectedBusinessObject,
+      });
+      setRulesDraft(removeRuleFromDraft(rulesDraft, ruleId));
+      setRulesStatus("Custom rule deleted. AI rules were left unchanged.");
+    } catch (err) {
+      setRulesError(
+        err instanceof Error ? err.message : "Failed to delete custom rule",
+      );
+    }
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-on-surface antialiased selection:bg-primary selection:text-on-primary">
       <AdminSideNav activeKey="admin" />
@@ -92,6 +208,24 @@ export function AdminRuleHubScreen() {
         onClose={() => setAssistantOpen(false)}
         businessObjectLabel={businessObjectLabel}
         hasRulesDraft={Boolean(rulesDraft)}
+      />
+      <CustomValidationRuleDialog
+        open={dialogOpen}
+        fieldOptions={fieldOptions}
+        initial={
+          editingCard
+            ? valuesFromRule(editingCard.fieldName, editingCard.rule)
+            : null
+        }
+        saving={dialogSaving}
+        error={dialogError}
+        onClose={() => {
+          if (!dialogSaving) {
+            setDialogOpen(false);
+            setEditingCard(null);
+          }
+        }}
+        onSubmit={handleCustomSubmit}
       />
 
       <main
@@ -178,10 +312,16 @@ export function AdminRuleHubScreen() {
             <div className="col-span-12">
               <ValidationSelectionCard
                 predefinedCount={predefinedCount}
-                aiRules={aiRules}
+                displayedRules={displayedRules}
                 rulesDraft={rulesDraft}
                 suggesting={generatingRules}
+                addingCustom={dialogSaving}
                 message={rulesStatus}
+                onAddCustom={openCreateDialog}
+                onEditCustom={openEditDialog}
+                onDeleteCustom={(card) => {
+                  void handleDeleteCustom(card);
+                }}
                 onSuggestAi={() => {
                   setAssistantOpen(true);
                   void generateRules();
