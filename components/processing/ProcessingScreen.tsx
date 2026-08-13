@@ -52,14 +52,14 @@ export function ProcessingScreen() {
         if (cancelled) return;
         setProgress(100);
         window.setTimeout(() => {
-          if (!cancelled) router.replace("/reports");
+          if (!cancelled) router.replace(`/reports/${batch.batchId}`);
         }, 600);
       } catch (err) {
         if (cancelled) return;
         setError(err instanceof Error ? err.message : "Comparison failed");
         setProgress(100);
         window.setTimeout(() => {
-          if (!cancelled) router.replace("/reports");
+          if (!cancelled) router.replace(`/reports/${batch.batchId}`);
         }, 2500);
       }
     }

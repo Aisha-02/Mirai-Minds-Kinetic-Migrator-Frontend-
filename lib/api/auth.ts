@@ -8,6 +8,8 @@ export type UserRole = "admin" | "normal_user";
 export type AuthUser = {
   id: string;
   email: string;
+  full_name?: string | null;
+  terms_accepted_at?: string | null;
   role: UserRole;
   created_at?: string;
   updated_at?: string;
@@ -57,12 +59,14 @@ export async function registerAccount(
   email: string,
   password: string,
   role: UserRole = "normal_user",
+  fullName?: string,
+  termsAccepted = false,
 ) {
   const response = await apiFetch("/api/auth/register", {
     method: "POST",
     skipAuth: true,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, role }),
+    body: JSON.stringify({ email, password, role, fullName, termsAccepted }),
   });
 
   const data = await parseJson<{ user?: AuthUser } & ApiErrorBody>(response);
