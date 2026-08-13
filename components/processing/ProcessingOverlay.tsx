@@ -1,11 +1,11 @@
 import { Icon } from "@/components/ui/Icon";
-import {
-  processingCopy,
-  processingSteps,
-  type ProcessingStep,
-} from "@/lib/mock/processing";
+import type { ProcessingStep } from "@/lib/mock/processing";
 
-function ProcessingStepNode({ step }: { step: ProcessingStep }) {
+type ProcessingStepNodeProps = {
+  step: ProcessingStep;
+};
+
+function ProcessingStepNode({ step }: ProcessingStepNodeProps) {
   if (step.state === "complete") {
     return (
       <div className="z-10 flex w-32 flex-col items-center gap-2">
@@ -64,24 +64,40 @@ function ProcessingStepNode({ step }: { step: ProcessingStep }) {
   );
 }
 
-export function ProcessingOverlay() {
+type ProcessingOverlayProps = {
+  progressPercent: number;
+  statusText: string;
+  steps: ProcessingStep[];
+};
+
+export function ProcessingOverlay({
+  progressPercent,
+  statusText,
+  steps,
+}: ProcessingOverlayProps) {
+  const clampedProgress = Math.min(100, Math.max(0, progressPercent));
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-6 backdrop-blur-sm sm:p-12">
       <div className="flex w-full max-w-2xl flex-col items-center rounded-2xl border border-outline-variant bg-surface-container p-8 shadow-2xl">
         <h2 className="mb-2 font-headline-md text-headline-md text-white">
-          {processingCopy.title}
+          Processing Data
         </h2>
         <p className="mb-8 animate-pulse text-center font-body-md text-body-md font-bold text-brand-blue">
-          {processingCopy.statusPrefix}{" "}
+          {statusText}{" "}
           <span className="ml-2 font-mono-data text-white text-mono-data">
-            {processingCopy.progressPercent}
+            {clampedProgress}%
           </span>
         </p>
 
         <div className="relative mb-4 flex w-full items-start justify-between px-4">
-          <div className="absolute top-8 right-16 left-16 -z-10 h-1 rounded-full bg-outline-variant" />
-          <div className="animate-slide-progress absolute top-8 left-16 -z-10 h-1 rounded-full bg-brand-blue shadow-[0_0_15px_rgba(0,143,211,0.8)]" />
-          {processingSteps.map((step) => (
+          <div className="absolute top-8 right-16 left-16 -z-10 h-1 rounded-full bg-outline-variant">
+            <div
+              className="h-1 rounded-full bg-brand-blue shadow-[0_0_15px_rgba(0,143,211,0.8)] transition-all duration-500 ease-out"
+              style={{ width: `${clampedProgress}%` }}
+            />
+          </div>
+          {steps.map((step) => (
             <ProcessingStepNode key={step.id} step={step} />
           ))}
         </div>

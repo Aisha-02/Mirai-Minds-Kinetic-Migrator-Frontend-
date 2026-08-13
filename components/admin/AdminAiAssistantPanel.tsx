@@ -10,13 +10,23 @@ import {
 type AdminAiAssistantPanelProps = {
   open?: boolean;
   onClose?: () => void;
+  businessObjectLabel?: string;
+  hasRulesDraft?: boolean;
 };
 
 export function AdminAiAssistantPanel({
   open = false,
   onClose,
+  businessObjectLabel = "",
+  hasRulesDraft = false,
 }: AdminAiAssistantPanelProps) {
   const [message, setMessage] = useState("");
+
+  const introMessage = businessObjectLabel
+    ? hasRulesDraft
+      ? `I've generated validation rules for ${businessObjectLabel}. Ask me to explain any rule or suggest improvements.`
+      : `Select ${businessObjectLabel}, upload a source schema, and generate rules to get AI recommendations.`
+    : "Upload a source schema and select a business object to get started.";
 
   return (
     <aside
@@ -55,11 +65,7 @@ export function AdminAiAssistantPanel({
             <Icon name="smart_toy" className="text-[16px]" />
           </div>
           <div className="rounded-2xl rounded-tl-sm border border-white/5 bg-surface-container-lowest p-4 text-body-md text-on-surface">
-            {adminCopy.assistantMessagePrefix}{" "}
-            <span className="rounded bg-tertiary-container/10 px-1 font-mono-data text-tertiary">
-              {adminCopy.assistantMessageObject}
-            </span>{" "}
-            {adminCopy.assistantMessageSuffix}
+            {introMessage}
           </div>
         </div>
 

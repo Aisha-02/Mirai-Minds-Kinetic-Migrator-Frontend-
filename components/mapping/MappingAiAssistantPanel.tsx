@@ -2,16 +2,24 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import type { SchemaFieldMapping } from "@/lib/api/schemaMapping";
+import {
+  formatConfidencePercent,
+} from "@/lib/api/schemaMapping";
 import { mappingCopy } from "@/lib/mock/mapping";
 
 type MappingAiAssistantPanelProps = {
   open?: boolean;
   onClose?: () => void;
+  schemaMappings?: SchemaFieldMapping[];
+  highlightMapping?: SchemaFieldMapping | null;
 };
 
 export function MappingAiAssistantPanel({
   open = false,
   onClose,
+  schemaMappings = [],
+  highlightMapping = null,
 }: MappingAiAssistantPanelProps) {
   const [message, setMessage] = useState("");
 
@@ -45,62 +53,44 @@ export function MappingAiAssistantPanel({
       </div>
 
       <div className="mb-4 flex flex-1 flex-col gap-4 overflow-y-auto pr-2 font-body-sm text-body-sm">
-        <div className="my-2 text-center font-label-caps text-label-caps text-on-surface-variant">
-          {mappingCopy.assistantTimestamp}
-        </div>
-
-        <div className="max-w-[85%] self-end rounded-xl rounded-tr-sm border border-white/10 bg-surface-container p-3">
-          <p className="text-on-surface">{mappingCopy.userQuestion}</p>
-        </div>
-
-        <div className="max-w-[90%] self-start rounded-xl rounded-tl-sm border border-tertiary/30 bg-tertiary/10 p-3">
-          <div className="mb-1 flex items-center gap-2">
-            <Icon name="auto_awesome" className="text-sm text-tertiary" />
-            <span className="font-label-caps text-label-caps text-tertiary">
-              {mappingCopy.kineticAiLabel}
-            </span>
-          </div>
-          <p className="leading-relaxed text-on-surface">
-            The Oracle field{" "}
-            <code className="rounded bg-black/20 px-1 font-mono-data text-tertiary-fixed">
-              {mappingCopy.assistantOracleField}
-            </code>{" "}
-            is{" "}
-            <code className="font-mono-data text-on-surface-variant">
-              {mappingCopy.assistantOracleType}
-            </code>
-            , but the standard SAP{" "}
-            <code className="rounded bg-black/20 px-1 font-mono-data text-tertiary-fixed">
-              {mappingCopy.assistantSapField}
-            </code>{" "}
-            is{" "}
-            <code className="font-mono-data text-on-surface-variant">
-              {mappingCopy.assistantSapType}
-            </code>{" "}
-            (or 40 depending on configuration).
-          </p>
-          <div className="mt-2 rounded border border-white/5 bg-black/30 p-2">
-            <p className="text-[12px] text-on-surface-variant">
-              {mappingCopy.assistantRecommendation}
+        {highlightMapping ? (
+          <div className="max-w-[90%] self-start rounded-xl rounded-tl-sm border border-tertiary/30 bg-tertiary/10 p-3">
+            <div className="mb-1 flex items-center gap-2">
+              <Icon name="auto_awesome" className="text-sm text-tertiary" />
+              <span className="font-label-caps text-label-caps text-tertiary">
+                {mappingCopy.kineticAiLabel}
+              </span>
+            </div>
+            <p className="leading-relaxed text-on-surface">
+              Lowest-confidence mapping:{" "}
+              <code className="rounded bg-black/20 px-1 font-mono-data text-tertiary-fixed">
+                {highlightMapping.sourceField}
+              </code>{" "}
+              →{" "}
+              <code className="rounded bg-black/20 px-1 font-mono-data text-tertiary-fixed">
+                {highlightMapping.sapField || "unmapped"}
+              </code>{" "}
+              ({formatConfidencePercent(highlightMapping.confidenceScore)}).
             </p>
+            {highlightMapping.reasoning ? (
+              <div className="mt-2 rounded border border-white/5 bg-black/30 p-2">
+                <p className="text-[12px] text-on-surface-variant">
+                  {highlightMapping.reasoning}
+                </p>
+              </div>
+            ) : null}
           </div>
-        </div>
-
-        <div className="max-w-[85%] self-end rounded-xl rounded-tr-sm border border-white/10 bg-surface-container p-3">
-          <p className="text-on-surface">{mappingCopy.userFollowUp}</p>
-        </div>
-
-        <div className="flex items-center gap-1 self-start rounded-xl rounded-tl-sm border border-tertiary/10 bg-tertiary/5 p-3">
-          <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-tertiary/60" />
-          <div
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-tertiary/60"
-            style={{ animationDelay: "0.1s" }}
-          />
-          <div
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-tertiary/60"
-            style={{ animationDelay: "0.2s" }}
-          />
-        </div>
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-on-surface-variant">
+            <Icon name="forum" className="text-3xl" />
+            <p>Ask about your field mappings once results are available.</p>
+            {schemaMappings.length > 0 ? (
+              <p className="text-[12px]">
+                {schemaMappings.length} mapping(s) loaded.
+              </p>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <div className="mt-auto flex flex-col gap-3 border-t border-tertiary/20 pt-4">

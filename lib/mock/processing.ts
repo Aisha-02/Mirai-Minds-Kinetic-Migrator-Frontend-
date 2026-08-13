@@ -10,31 +10,78 @@ export type ProcessingStep = {
 
 export const processingCopy = {
   title: "Processing Data",
-  statusPrefix: "Refining 1.4GB of legacy data...",
-  progressPercent: "64%",
   redirectDelayMs: 2000,
 } as const;
 
-export const processingSteps: ProcessingStep[] = [
+export const initialProcessingSteps: ProcessingStep[] = [
   {
     id: "uploaded",
     label: "Uploaded",
-    detail: "2 Files / 1.4GB",
+    detail: "Files received",
     icon: "check",
     state: "complete",
   },
   {
-    id: "cleaning",
-    label: "Cleaning",
-    detail: "Processing...",
-    icon: "mop",
+    id: "comparing",
+    label: "Comparing",
+    detail: "Running diff…",
+    icon: "compare_arrows",
     state: "active",
   },
   {
-    id: "validating",
-    label: "Validating",
+    id: "reporting",
+    label: "AI Report",
     detail: "Pending",
-    icon: "fact_check",
+    icon: "auto_awesome",
     state: "pending",
   },
 ];
+
+export function buildProcessingSteps(
+  progressPercent: number,
+  fileSummary?: string,
+): ProcessingStep[] {
+  const progress = Math.min(100, Math.max(0, progressPercent));
+
+  return [
+    {
+      id: "uploaded",
+      label: "Uploaded",
+      detail: fileSummary || "Files received",
+      icon: "check",
+      state: "complete",
+    },
+    {
+      id: "comparing",
+      label: "Comparing",
+      detail:
+        progress < 40
+          ? "Analyzing preload vs postload…"
+          : progress < 75
+            ? "Building diff summary…"
+            : "Comparison complete",
+      icon: "compare_arrows",
+      state: progress < 75 ? "active" : "complete",
+    },
+    {
+      id: "reporting",
+      label: "AI Report",
+      detail:
+        progress < 75
+          ? "Waiting…"
+          : progress < 100
+            ? "Generating narrative…"
+            : "Report ready",
+      icon: "auto_awesome",
+      state:
+        progress < 75 ? "pending" : progress < 100 ? "active" : "complete",
+    },
+  ];
+}
+
+export function buildProcessingStatusText(progressPercent: number): string {
+  if (progressPercent < 40) return "Comparing preload and postload files…";
+  if (progressPercent < 75) return "Calculating differences and metrics…";
+  if (progressPercent < 100) return "Generating AI comparison summary…";
+  return "Finalizing report…";
+}

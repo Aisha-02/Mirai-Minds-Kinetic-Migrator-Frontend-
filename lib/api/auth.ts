@@ -1,4 +1,6 @@
 import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from "@/lib/api/config";
+import { clearAdminWorkspace } from "@/lib/api/adminWorkspace";
+import { clearAdminWorkspaceSession } from "@/lib/session/adminWorkspace";
 import { apiFetch, parseJson } from "@/lib/api/http";
 
 export type UserRole = "admin" | "normal_user";
@@ -32,6 +34,10 @@ export function storeAuthToken(token: string) {
 
 export function clearAuthSession() {
   if (typeof window === "undefined") return;
+  if (window.localStorage.getItem(AUTH_TOKEN_KEY)) {
+    void clearAdminWorkspace().catch(() => {});
+  }
+  clearAdminWorkspaceSession();
   window.localStorage.removeItem(AUTH_TOKEN_KEY);
   window.localStorage.removeItem(AUTH_USER_KEY);
 }

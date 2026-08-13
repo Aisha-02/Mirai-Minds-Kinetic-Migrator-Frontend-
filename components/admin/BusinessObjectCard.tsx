@@ -3,10 +3,12 @@
 import { Icon } from "@/components/ui/Icon";
 import {
   adminCopy,
-  businessObjectOptions,
+  type BusinessObjectOption,
 } from "@/lib/mock/admin";
 
 type BusinessObjectCardProps = {
+  options: BusinessObjectOption[];
+  loading?: boolean;
   selectedId: string;
   onSelect: (id: string) => void;
   onConfirm?: () => void;
@@ -16,6 +18,8 @@ type BusinessObjectCardProps = {
 };
 
 export function BusinessObjectCard({
+  options,
+  loading = false,
   selectedId,
   onSelect,
   onConfirm,
@@ -37,39 +41,49 @@ export function BusinessObjectCard({
       </div>
 
       <div className="flex-1 space-y-3 overflow-auto p-4">
-        {businessObjectOptions.map((option) => {
-          const selected = option.id === selectedId;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              disabled={disabled}
-              onClick={() => onSelect(option.id)}
-              className="group w-full cursor-pointer rounded-lg border border-white/5 bg-white/5 p-4 text-left transition-all hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                    selected ? "border-primary" : "border-white/20"
-                  }`}
-                >
-                  {selected ? (
-                    <div className="h-2 w-2 rounded-full bg-primary" />
-                  ) : null}
+        {loading ? (
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            Loading business objects…
+          </p>
+        ) : options.length === 0 ? (
+          <p className="font-body-sm text-body-sm text-on-surface-variant">
+            No business objects available.
+          </p>
+        ) : (
+          options.map((option) => {
+            const selected = option.id === selectedId;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                disabled={disabled}
+                onClick={() => onSelect(option.id)}
+                className="group w-full cursor-pointer rounded-lg border border-white/5 bg-white/5 p-4 text-left transition-all hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
+                      selected ? "border-primary" : "border-white/20"
+                    }`}
+                  >
+                    {selected ? (
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                    ) : null}
+                  </div>
+                  <span className="font-body-md text-body-md font-semibold text-on-surface">
+                    {option.label}
+                  </span>
                 </div>
-                <span className="font-body-md text-body-md font-semibold text-on-surface">
-                  {option.label}
-                </span>
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })
+        )}
       </div>
 
       <div className="flex justify-center border-t border-white/5 bg-surface-container-lowest/50 p-3">
         <button
           type="button"
-          disabled={disabled || !selectedId || confirming}
+          disabled={disabled || !selectedId || confirming || loading}
           onClick={onConfirm}
           className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body-sm text-body-sm font-semibold text-on-primary transition-all hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-50"
         >

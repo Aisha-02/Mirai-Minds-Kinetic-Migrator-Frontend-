@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { getStoredAuthUser } from "@/lib/api/auth";
 import {
   adminCopy,
   adminNavPrimary,
@@ -13,6 +17,15 @@ type AdminSideNavProps = {
 };
 
 export function AdminSideNav({ activeKey }: AdminSideNavProps) {
+  const [userLabel, setUserLabel] = useState("Admin workspace");
+
+  useEffect(() => {
+    const user = getStoredAuthUser();
+    if (user?.email) {
+      setUserLabel(user.email);
+    }
+  }, []);
+
   return (
     <nav className="fixed top-0 left-0 z-50 flex h-screen w-sidebar-width flex-col border-r border-white/10 bg-surface/60 px-4 py-6 shadow-none backdrop-blur-[20px]">
       <div className="mb-8 flex items-center gap-3 px-2">
@@ -30,8 +43,8 @@ export function AdminSideNav({ activeKey }: AdminSideNavProps) {
           <div className="font-headline-md text-headline-md leading-tight font-bold text-primary">
             {adminCopy.workspaceTitle}
           </div>
-          <div className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-            {adminCopy.enterpriseId}
+          <div className="mt-1 truncate font-body-sm text-body-sm text-on-surface-variant">
+            {userLabel}
           </div>
         </div>
       </div>

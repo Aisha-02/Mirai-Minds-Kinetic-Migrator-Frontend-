@@ -1,4 +1,5 @@
 import { apiFetch, parseJson, readApiError } from "@/lib/api/http";
+import { downloadViaSignedUrl } from "@/lib/api/signedDownload";
 
 export const COMPARISON_BUSINESS_OBJECTS = [
   "MATERIAL_MASTER",
@@ -150,14 +151,11 @@ export async function fetchComparisonReport(
   return data.report;
 }
 
-export async function downloadComparisonPdf(batchId: string): Promise<Blob> {
-  const response = await apiFetch(
+export async function downloadComparisonPdf(batchId: string): Promise<void> {
+  await downloadViaSignedUrl(
     `/api/comparisons/${batchId}/report/download`,
+    `comparison-report-${batchId}.pdf`,
   );
-  if (!response.ok) {
-    throw new Error(await readApiError(response));
-  }
-  return response.blob();
 }
 
 export type BatchUploadFileSummary = {

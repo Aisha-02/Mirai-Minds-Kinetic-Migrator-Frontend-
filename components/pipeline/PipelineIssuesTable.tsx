@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlvDataGrid, type AlvColumn } from "@/components/ui/AlvDataGrid";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -83,6 +83,11 @@ export function PipelineIssuesTable({
 
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [resetSignal, setResetSignal] = useState(0);
+  const [pageSize, setPageSize] = useState(25);
+
+  useEffect(() => {
+    setResetSignal((n) => n + 1);
+  }, [issues]);
 
   function showAll() {
     setFilters({});
@@ -100,7 +105,21 @@ export function PipelineIssuesTable({
         <h3 className="font-headline-sm text-headline-sm font-bold text-white">
           {pipelineCopy.issuesTitle}
         </h3>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-highest px-3 py-1.5 font-label-caps text-label-caps text-on-surface-variant">
+            Rows
+            <select
+              value={pageSize}
+              onChange={(event) => setPageSize(Number(event.target.value))}
+              className="rounded border border-outline-variant/30 bg-surface-dim px-2 py-0.5 text-on-surface focus:border-primary focus:outline-none"
+            >
+              {[10, 25, 50, 100].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             type="button"
             onClick={showAll}
@@ -123,7 +142,8 @@ export function PipelineIssuesTable({
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
-        pageSize={25}
+        pageSize={pageSize}
+        rowLabel="issues"
         emptyMessage="No findings for this comparison"
         filters={filters}
         onFiltersChange={setFilters}

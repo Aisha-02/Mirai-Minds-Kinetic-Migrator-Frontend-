@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 import { MappingHubScreen } from "@/components/mapping/MappingHubScreen";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function AnalysisPage() {
-  return <MappingHubScreen />;
+  return (
+    <RequireAuth roles={["admin"]}>
+      <MappingHubScreen />
+    </RequireAuth>
+  );
 }

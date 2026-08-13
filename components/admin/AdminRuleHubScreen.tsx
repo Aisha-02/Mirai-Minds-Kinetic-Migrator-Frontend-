@@ -11,26 +11,37 @@ import {
   collectAiRuleCards,
 } from "@/components/admin/ValidationSelectionCard";
 import { TopAppBar } from "@/components/layout/TopAppBar";
-import {
-  generateValidationRules,
-  saveValidationRules,
-  type RulesDraft,
-} from "@/lib/api/rules";
-import { businessObjectOptions } from "@/lib/mock/admin";
+import { Icon } from "@/components/ui/Icon";
+import { useAdminWorkspace } from "@/context/AdminWorkspaceContext";
+import { saveValidationRules } from "@/lib/api/rules";
 
 export function AdminRuleHubScreen() {
   const [assistantOpen, setAssistantOpen] = useState(false);
-  const [selectedBo, setSelectedBo] = useState(
-    businessObjectOptions[0]?.id ?? "MM",
-  );
-  const [excelFile, setExcelFile] = useState<File | null>(null);
-  const [draft, setDraft] = useState<RulesDraft | null>(null);
-  const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
 
-  const fields = draft?.fields ?? [];
+  const {
+    sourceFile,
+    fileMeta,
+    selectedBusinessObject,
+    businessObjectOptions,
+    loadingBusinessObjects,
+    rulesDraft,
+    rulesStatus,
+    rulesError,
+    mappingStatus,
+    mappingError,
+    generatingRules,
+    generatingMappings,
+    uploadingSchema,
+    registerFile,
+    setSelectedBusinessObject,
+    generateRules,
+    generateMappings,
+    setRulesStatus,
+    setRulesError,
+  } = useAdminWorkspace();
+
+  const fields = rulesDraft?.fields ?? [];
   const aiRules = useMemo(() => collectAiRuleCards(fields), [fields]);
   const predefinedCount = useMemo(
     () =>
@@ -45,47 +56,28 @@ export function AdminRuleHubScreen() {
     [fields],
   );
 
-  async function handleGenerate() {
-    setError(null);
-    setStatus(null);
+  const displayFileName = sourceFile?.name ?? fileMeta?.name ?? null;
+  const hasSource = Boolean(sourceFile || fileMeta);
+  const busy =
+    generatingRules || generatingMappings || saving || uploadingSchema;
 
-    if (!selectedBo) {
-      setError("Select a business object first");
-      return;
-    }
-    if (!excelFile) {
-      setError("Upload an Excel field metadata file first");
-      return;
-    }
-
-    setGenerating(true);
-    try {
-      const result = await generateValidationRules(selectedBo, excelFile);
-      setDraft(result.rules);
-      setStatus(
-        result.message ||
-          "Review predefined + AI rules. Nothing is saved until you apply.",
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate rules");
-    } finally {
-      setGenerating(false);
-    }
-  }
+  const businessObjectLabel =
+    businessObjectOptions.find((option) => option.id === selectedBusinessObject)
+      ?.label ?? selectedBusinessObject;
 
   async function handleSave() {
-    if (!draft) return;
-    setError(null);
-    setStatus(null);
+    if (!rulesDraft) return;
+    setRulesError(null);
+    setRulesStatus(null);
     setSaving(true);
     try {
       const result = await saveValidationRules({
-        businessObject: draft.businessObject,
-        rules: draft,
+        businessObject: rulesDraft.businessObject,
+        rules: rulesDraft,
       });
-      setStatus(result.message || "Rules saved");
+      setRulesStatus(result.message || "Rules saved");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save rules");
+      setRulesError(err instanceof Error ? err.message : "Failed to save rules");
     } finally {
       setSaving(false);
     }
@@ -98,6 +90,8 @@ export function AdminRuleHubScreen() {
       <AdminAiAssistantPanel
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
+        businessObjectLabel={businessObjectLabel}
+        hasRulesDraft={Boolean(rulesDraft)}
       />
 
       <main
@@ -107,14 +101,26 @@ export function AdminRuleHubScreen() {
       >
         <div className="mx-auto w-full max-w-[1600px] space-y-6 p-section-padding">
           <AdminPageHeader
-            canSave={Boolean(draft)}
+            canSave={Boolean(rulesDraft)}
             saving={saving}
             onSave={handleSave}
           />
 
-          {error ? (
+          {rulesError ? (
             <p className="font-body-sm text-body-sm text-error" role="alert">
-              {error}
+              {rulesError}
+            </p>
+          ) : null}
+
+          {mappingError ? (
+            <p className="font-body-sm text-body-sm text-error" role="alert">
+              {mappingError}
+            </p>
+          ) : null}
+
+          {mappingStatus ? (
+            <p className="font-body-sm text-body-sm text-primary" role="status">
+              {mappingStatus}
             </p>
           ) : null}
 
@@ -122,39 +128,63 @@ export function AdminRuleHubScreen() {
             <div className="col-span-12 flex flex-col gap-4 lg:col-span-6">
               <SourceDataRulesCard
                 fields={fields}
-                fileName={excelFile?.name ?? null}
-                disabled={generating || saving}
+                fileName={displayFileName}
+                disabled={busy}
                 onFileSelected={(file) => {
-                  setExcelFile(file);
-                  setDraft(null);
-                  setStatus(null);
-                  setError(null);
+                  void registerFile(file);
                 }}
               />
             </div>
             <div className="col-span-12 flex flex-col gap-4 lg:col-span-6">
               <BusinessObjectCard
-                selectedId={selectedBo}
-                onSelect={(id) => {
-                  setSelectedBo(id);
-                  setDraft(null);
-                  setStatus(null);
-                }}
-                onConfirm={handleGenerate}
+                options={businessObjectOptions}
+                loading={loadingBusinessObjects}
+                selectedId={selectedBusinessObject}
+                onSelect={setSelectedBusinessObject}
+                onConfirm={() => void generateRules()}
                 confirmLabel="Generate Rules"
-                confirming={generating}
-                disabled={generating || saving}
+                confirming={generatingRules}
+                disabled={busy}
               />
+            </div>
+            <div className="col-span-12">
+              <div className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-surface/60 backdrop-blur-[20px]">
+                <div className="border-b border-white/5 bg-white/[0.02] p-5">
+                  <h3 className="font-headline-sm text-headline-sm text-on-surface">
+                    Schema Mapping
+                  </h3>
+                  <p className="mt-0.5 font-body-sm text-body-sm text-on-surface-variant opacity-80">
+                    Generate AI field mappings for the uploaded source schema.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-4 p-5">
+                  <p className="font-body-sm text-body-sm text-on-surface-variant">
+                    {hasSource
+                      ? `Ready to map fields for ${businessObjectLabel}.`
+                      : "Upload a source schema file first."}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={busy || !hasSource || !selectedBusinessObject}
+                    onClick={() => void generateMappings()}
+                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body-sm text-body-sm font-semibold text-on-primary transition-all hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Icon name="compare_arrows" className="text-[18px]" />
+                    {generatingMappings ? "Generating…" : "Generate Mapping"}
+                  </button>
+                </div>
+              </div>
             </div>
             <div className="col-span-12">
               <ValidationSelectionCard
                 predefinedCount={predefinedCount}
                 aiRules={aiRules}
-                suggesting={generating}
-                message={status}
+                rulesDraft={rulesDraft}
+                suggesting={generatingRules}
+                message={rulesStatus}
                 onSuggestAi={() => {
                   setAssistantOpen(true);
-                  void handleGenerate();
+                  void generateRules();
                 }}
               />
             </div>

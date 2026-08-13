@@ -28,6 +28,8 @@ type AlvDataGridProps<T extends Record<string, unknown>> = {
   onFiltersChange?: (filters: Record<string, string>) => void;
   /** Bump to reset sort + page (e.g. when parent clears filters) */
   resetSignal?: number;
+  /** Noun used in pagination footer, e.g. "issues" or "rows" */
+  rowLabel?: string;
 };
 
 function cellText(value: unknown): string {
@@ -72,6 +74,7 @@ export function AlvDataGrid<T extends Record<string, unknown>>({
   filters: controlledFilters,
   onFiltersChange,
   resetSignal = 0,
+  rowLabel = "rows",
 }: AlvDataGridProps<T>) {
   const [internalFilters, setInternalFilters] = useState<
     Record<string, string>
@@ -88,6 +91,19 @@ export function AlvDataGrid<T extends Record<string, unknown>>({
       setPage(0);
     }
   }, [resetSignal]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [pageSize]);
+
+  const rowsDatasetKey = useMemo(
+    () => `${rows.length}\0${rows.map((row) => getRowId(row)).join("\0")}`,
+    [rows, getRowId],
+  );
+
+  useEffect(() => {
+    setPage(0);
+  }, [rowsDatasetKey]);
 
   function updateFilters(next: Record<string, string>) {
     if (isControlled) onFiltersChange?.(next);
@@ -149,6 +165,13 @@ export function AlvDataGrid<T extends Record<string, unknown>>({
     safePage * pageSize,
     safePage * pageSize + pageSize,
   );
+
+  useEffect(() => {
+    const maxPage = Math.max(0, pageCount - 1);
+    if (page > maxPage) {
+      setPage(maxPage);
+    }
+  }, [page, pageCount]);
 
   function setFilter(key: string, value: string) {
     updateFilters({ ...filters, [key]: value });
@@ -299,7 +322,7 @@ export function AlvDataGrid<T extends Record<string, unknown>>({
           Showing{" "}
           {filteredSorted.length === 0 ? 0 : safePage * pageSize + 1}-
           {Math.min((safePage + 1) * pageSize, filteredSorted.length)} of{" "}
-          {filteredSorted.length} issues
+          {filteredSorted.length} {rowLabel}
           {filteredSorted.length !== rows.length
             ? ` (filtered from ${rows.length})`
             : ""}

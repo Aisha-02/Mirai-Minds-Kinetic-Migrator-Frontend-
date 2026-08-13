@@ -2,13 +2,17 @@
 
 import { Icon } from "@/components/ui/Icon";
 import type {
+  AutoFixResponse,
   ExecuteCleanupResponse,
   PlainLanguageFieldGroup,
 } from "@/lib/api/validation";
+import { downloadRefinedFile } from "@/lib/api/validation";
 import { validationCopy } from "@/lib/mock/validation";
 
 type CleaningReportProps = {
   result?: ExecuteCleanupResponse | null;
+  autoFixResult?: AutoFixResponse | null;
+  autoFixLoading?: boolean;
   onSuggestAi?: () => void;
 };
 
@@ -105,20 +109,27 @@ function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
   );
 }
 
-function DataPreview({ rows }: { rows: Record<string, unknown>[] }) {
+function DataPreview({
+  rows,
+  columns,
+}: {
+  rows: Record<string, unknown>[];
+  columns?: string[];
+}) {
   if (!rows.length) return null;
-  const columns = Object.keys(rows[0] || {}).slice(0, 8);
+  const displayColumns =
+    columns?.length ? columns : Object.keys(rows[0] || {});
 
   return (
     <div className="mt-6 overflow-hidden rounded-xl border border-white/5">
       <div className="border-b border-white/5 bg-surface-bright/20 px-4 py-3 font-headline-sm text-headline-sm text-on-surface">
-        Data Preview (first {rows.length} rows)
+        Data Preview
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left font-mono-data text-mono-data">
           <thead>
             <tr className="bg-surface-bright/10">
-              {columns.map((col) => (
+              {displayColumns.map((col) => (
                 <th
                   key={col}
                   className="p-3 font-label-caps text-label-caps text-on-surface-variant"
@@ -131,7 +142,7 @@ function DataPreview({ rows }: { rows: Record<string, unknown>[] }) {
           <tbody>
             {rows.map((row, index) => (
               <tr key={index} className="border-t border-white/5">
-                {columns.map((col) => (
+                {displayColumns.map((col) => (
                   <td key={col} className="p-3 text-on-surface">
                     {row[col] == null ? "—" : String(row[col])}
                   </td>
@@ -147,6 +158,8 @@ function DataPreview({ rows }: { rows: Record<string, unknown>[] }) {
 
 export function CleaningReport({
   result = null,
+  autoFixResult = null,
+  autoFixLoading = false,
   onSuggestAi,
 }: CleaningReportProps) {
   const report = result?.report ?? null;
@@ -158,6 +171,18 @@ export function CleaningReport({
   const meta = result
     ? `${result.rulesBusinessObject} • ${result.filename} • ${result.detection.confidence || "n/a"} confidence`
     : validationCopy.reportMeta;
+  const refinedReady = Boolean(autoFixResult?.ok && result?.sessionId);
+  const refinedFilename =
+    autoFixResult?.refinedFilename || "preload_refined.xlsx";
+  const previewRows =
+    autoFixResult?.previewRefinedRows?.length
+      ? autoFixResult.previewRefinedRows
+      : result?.previewRows;
+
+  async function handleDownload() {
+    if (!result?.sessionId || !refinedReady) return;
+    await downloadRefinedFile(result.sessionId, refinedFilename);
+  }
 
   return (
     <div className="workspace-glass rounded-xl border-l-2 border-l-tertiary p-6">
@@ -180,8 +205,30 @@ export function CleaningReport({
               {result.detection.reasoning}
             </p>
           ) : null}
+          {result?.columnMapping &&
+          Object.entries(result.columnMapping).some(
+            ([source, target]) => source !== target,
+          ) ? (
+            <p className="mt-2 font-body-sm text-body-sm text-primary">
+              Descriptive columns mapped to SAP field names before validation
+              {result.sapMetadataUsed ? " (via SAP metadata)" : ""}.
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={!refinedReady || autoFixLoading}
+            className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-on-primary shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon name="download" className="text-[18px]" />
+            <span className="text-sm font-medium">
+              {autoFixLoading
+                ? "Preparing refined file…"
+                : validationCopy.downloadLabel}
+            </span>
+          </button>
           <button
             type="button"
             onClick={onSuggestAi}
@@ -246,8 +293,32 @@ export function CleaningReport({
         </div>
       )}
 
-      {result?.previewRows?.length ? (
-        <DataPreview rows={result.previewRows} />
+      {result && autoFixLoading ? (
+        <div className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4 font-body-sm text-body-sm text-primary">
+          Applying auto-fix rules to SAP-mapped data…
+        </div>
+      ) : null}
+
+      {autoFixResult?.ok ? (
+        <div className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <p className="font-body-md text-body-md text-on-surface">
+            Refined file ready: {autoFixResult.refinedFilename}
+          </p>
+          <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+            SAP field names with fixes applied — Applied {autoFixResult.fixesApplied}{" "}
+            fix{autoFixResult.fixesApplied === 1 ? "" : "es"}
+            {autoFixResult.fixesSkipped
+              ? ` • ${autoFixResult.fixesSkipped} could not be auto-fixed`
+              : ""}
+          </p>
+        </div>
+      ) : null}
+
+      {previewRows?.length ? (
+        <DataPreview
+          rows={previewRows}
+          columns={result?.originalColumns}
+        />
       ) : null}
     </div>
   );

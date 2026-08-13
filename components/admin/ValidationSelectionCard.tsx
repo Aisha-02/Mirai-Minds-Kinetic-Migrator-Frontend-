@@ -1,24 +1,57 @@
 "use client";
 
+import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
-import type { FieldRule } from "@/lib/api/rules";
+import type { FieldRule, RulesDraft } from "@/lib/api/rules";
 import { adminCopy } from "@/lib/mock/admin";
 
 type ValidationSelectionCardProps = {
   predefinedCount: number;
   aiRules: Array<{ id: string; title: string; subtitle: string; fieldName: string }>;
+  rulesDraft?: RulesDraft | null;
   onSuggestAi?: () => void;
   suggesting?: boolean;
   message?: string | null;
 };
 
+const PREDEFINED_TOGGLES = [
+  { id: "trim", label: "Trim Empty Spaces", keywords: ["trim", "space"] },
+  { id: "null", label: "Check Null Keys", keywords: ["null", "key"] },
+  { id: "dup", label: "Remove Duplicate Records", keywords: ["duplicate", "dup"] },
+] as const;
+
+function hasPredefinedRule(
+  fields: RulesDraft["fields"],
+  keywords: readonly string[],
+) {
+  return fields.some((field) =>
+    (field.rules || []).some((rule) => {
+      if (String(rule.source).toUpperCase() !== "PREDEFINED") return false;
+      const haystack = `${rule.ruleName} ${rule.description ?? ""} ${rule.constraint ?? ""}`.toLowerCase();
+      return keywords.some((keyword) => haystack.includes(keyword));
+    }),
+  );
+}
+
 export function ValidationSelectionCard({
   predefinedCount,
   aiRules,
+  rulesDraft = null,
   onSuggestAi,
   suggesting = false,
   message = null,
 }: ValidationSelectionCardProps) {
+  const fields = rulesDraft?.fields ?? [];
+
+  const toggleStates = useMemo(
+    () =>
+      PREDEFINED_TOGGLES.map((toggle) => ({
+        ...toggle,
+        active: hasPredefinedRule(fields, toggle.keywords),
+      })),
+    [fields],
+  );
+
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-surface/60 backdrop-blur-[20px]">
       <div className="flex flex-col gap-3 border-b border-white/5 bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -43,11 +76,7 @@ export function ValidationSelectionCard({
 
       <div className="space-y-6 p-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {[
-            { id: "trim", label: "Trim Empty Spaces" },
-            { id: "null", label: "Check Null Keys" },
-            { id: "dup", label: "Remove Duplicate Records" },
-          ].map((toggle) => (
+          {toggleStates.map((toggle) => (
             <div
               key={toggle.id}
               className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-4"
@@ -58,8 +87,12 @@ export function ValidationSelectionCard({
                   {toggle.label}
                 </span>
               </div>
-              <span className="font-label-caps text-label-caps text-primary">
-                ON
+              <span
+                className={`font-label-caps text-label-caps ${
+                  toggle.active ? "text-primary" : "text-on-surface-variant"
+                }`}
+              >
+                {toggle.active ? "ON" : "OFF"}
               </span>
             </div>
           ))}
@@ -108,9 +141,9 @@ export function ValidationSelectionCard({
 
       <div className="flex justify-center border-t border-white/5 bg-surface-container-lowest/50 p-3">
         <span className="font-body-sm text-body-sm text-on-surface-variant italic opacity-70">
-          {aiRules.length
+          {aiRules.length > 0
             ? `${aiRules.length} AI rule(s) ready to save`
-            : adminCopy.pendingReviewLabel}
+            : "No AI rules generated yet"}
         </span>
       </div>
     </div>

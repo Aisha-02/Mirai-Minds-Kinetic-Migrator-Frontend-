@@ -1,10 +1,35 @@
-import { mappingCopy, mappingProgressPercent } from "@/lib/mock/mapping";
+import { mappingCopy } from "@/lib/mock/mapping";
 
 const GAUGE_CIRCUMFERENCE = 283;
-const gaugeOffset =
-  GAUGE_CIRCUMFERENCE * (1 - mappingProgressPercent / 100);
 
-export function MigrationProgressCard() {
+type MigrationProgressCardProps = {
+  mappedCount?: number;
+  totalFields?: number;
+  businessObject?: string | null;
+  fileName?: string | null;
+  statusMessage?: string | null;
+};
+
+export function MigrationProgressCard({
+  mappedCount = 0,
+  totalFields = 0,
+  businessObject = null,
+  fileName = null,
+  statusMessage = null,
+}: MigrationProgressCardProps) {
+  const hasData = totalFields > 0;
+  const percent = hasData ? Math.round((mappedCount / totalFields) * 100) : 0;
+  const gaugeOffset = GAUGE_CIRCUMFERENCE * (1 - percent / 100);
+
+  const phaseLine =
+    businessObject && fileName
+      ? `${businessObject} · ${fileName}`
+      : businessObject || fileName || "No active mapping";
+
+  const recordsValue = hasData
+    ? `${mappedCount} / ${totalFields}`
+    : "— / —";
+
   return (
     <div className="mapping-glass col-span-12 flex flex-col items-stretch justify-between gap-6 rounded-xl p-5 transition-all duration-300 sm:flex-row sm:items-center lg:col-span-8">
       <div className="flex flex-col">
@@ -12,10 +37,10 @@ export function MigrationProgressCard() {
           {mappingCopy.progressTitle}
         </h3>
         <div className="font-headline-md text-headline-md text-on-surface">
-          {mappingCopy.progressPhase}
+          {phaseLine}
         </div>
         <div className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-          {mappingCopy.progressEta}
+          {statusMessage || (hasData ? "Field mapping progress" : "—")}
         </div>
       </div>
       <div className="flex items-center gap-6">
@@ -24,7 +49,7 @@ export function MigrationProgressCard() {
             {mappingCopy.recordsLabel}
           </div>
           <div className="mt-1 font-mono-data text-mono-data text-primary">
-            {mappingCopy.recordsValue}
+            {recordsValue} fields mapped
           </div>
         </div>
         <div className="relative flex h-24 w-24 items-center justify-center">
@@ -50,7 +75,7 @@ export function MigrationProgressCard() {
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center font-headline-sm text-headline-sm font-bold">
-            {mappingCopy.progressPercent}
+            {hasData ? `${percent}%` : "—"}
           </div>
         </div>
       </div>

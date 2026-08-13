@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SideNav } from "@/components/layout/SideNav";
 import { TopAppBar } from "@/components/layout/TopAppBar";
 import { ActiveRulesetCard } from "@/components/validation/ActiveRulesetCard";
@@ -14,6 +14,8 @@ import {
   executeCleanup,
   isNeedsBusinessObjectCleanup,
   safeCleanupErrorMessage,
+  triggerAutoFix,
+  type AutoFixResponse,
   type ExecuteCleanupResponse,
 } from "@/lib/api/validation";
 
@@ -24,8 +26,14 @@ export function ValidationScreen() {
   const [candidates, setCandidates] = useState<string[]>([]);
   const [needsBo, setNeedsBo] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [autoFixLoading, setAutoFixLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [autoFixError, setAutoFixError] = useState<string | null>(null);
   const [result, setResult] = useState<ExecuteCleanupResponse | null>(null);
+  const [autoFixResult, setAutoFixResult] = useState<AutoFixResponse | null>(
+    null,
+  );
+  const lastAutoFixSessionRef = useRef<string | null>(null);
 
   async function handleExecute() {
     if (!file) {
@@ -35,6 +43,9 @@ export function ValidationScreen() {
 
     setLoading(true);
     setError(null);
+    setAutoFixError(null);
+    setAutoFixResult(null);
+    lastAutoFixSessionRef.current = null;
 
     try {
       const response = await executeCleanup(file, {
@@ -64,6 +75,39 @@ export function ValidationScreen() {
     }
   }
 
+  useEffect(() => {
+    const sessionId = result?.sessionId;
+    if (!sessionId || lastAutoFixSessionRef.current === sessionId) return;
+
+    let cancelled = false;
+    lastAutoFixSessionRef.current = sessionId;
+
+    async function runAutoFix() {
+      setAutoFixLoading(true);
+      setAutoFixError(null);
+      try {
+        const response = await triggerAutoFix(sessionId);
+        if (!cancelled) {
+          setAutoFixResult(response);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setAutoFixError(await safeCleanupErrorMessage(err));
+        }
+      } finally {
+        if (!cancelled) {
+          setAutoFixLoading(false);
+        }
+      }
+    }
+
+    void runAutoFix();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [result?.sessionId]);
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-on-surface antialiased">
       <SideNav activeKey="validate" />
@@ -84,6 +128,12 @@ export function ValidationScreen() {
           {error ? (
             <p className="font-body-sm text-body-sm text-error" role="alert">
               {error}
+            </p>
+          ) : null}
+
+          {autoFixError ? (
+            <p className="font-body-sm text-body-sm text-error" role="alert">
+              Auto-fix failed: {autoFixError}
             </p>
           ) : null}
 
@@ -114,6 +164,9 @@ export function ValidationScreen() {
               onFileSelected={(next) => {
                 setFile(next);
                 setResult(null);
+                setAutoFixResult(null);
+                setAutoFixError(null);
+                lastAutoFixSessionRef.current = null;
                 setError(null);
               }}
             />
@@ -142,6 +195,8 @@ export function ValidationScreen() {
 
           <CleaningReport
             result={result}
+            autoFixResult={autoFixResult}
+            autoFixLoading={autoFixLoading}
             onSuggestAi={() => setAssistantOpen(true)}
           />
         </div>

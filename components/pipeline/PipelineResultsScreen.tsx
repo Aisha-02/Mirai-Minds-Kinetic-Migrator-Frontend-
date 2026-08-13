@@ -7,6 +7,7 @@ import { TopAppBar } from "@/components/layout/TopAppBar";
 import { PipelineIssuesTable } from "@/components/pipeline/PipelineIssuesTable";
 import { PipelineMetricsRow } from "@/components/pipeline/PipelineMetricsRow";
 import { PipelineResultsHeader } from "@/components/pipeline/PipelineResultsHeader";
+import { AiComparisonReport } from "@/components/pipeline/AiComparisonReport";
 import { Icon } from "@/components/ui/Icon";
 import {
   downloadComparisonPdf,
@@ -202,7 +203,7 @@ function buildIssues(summary: ComparisonSummary | null): PipelineIssue[] {
     });
   }
 
-  return issues.slice(0, 100);
+  return issues;
 }
 
 function isTerminalStatus(status: string | undefined) {
@@ -315,13 +316,7 @@ export function PipelineResultsScreen() {
     setDownloading(true);
     setError(null);
     try {
-      const blob = await downloadComparisonPdf(active.batchId);
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `comparison-report-${active.batchId}.pdf`;
-      anchor.click();
-      URL.revokeObjectURL(url);
+      await downloadComparisonPdf(active.batchId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "PDF download failed");
     } finally {
@@ -419,14 +414,7 @@ export function PipelineResultsScreen() {
           ) : null}
 
           {report?.ai_report_text ? (
-            <div className="mb-container-margin rounded-xl border border-outline-variant bg-surface-container p-6">
-              <h3 className="mb-3 font-headline-sm text-headline-sm text-white">
-                AI comparison report
-              </h3>
-              <pre className="whitespace-pre-wrap font-body-md text-body-md text-on-surface">
-                {report.ai_report_text}
-              </pre>
-            </div>
+            <AiComparisonReport text={report.ai_report_text} />
           ) : null}
 
           {report?.summary_json ? (

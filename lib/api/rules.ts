@@ -41,6 +41,8 @@ export type GenerateRulesResponse = {
   businessObject: string;
   sourceFields?: unknown;
   rules: RulesDraft;
+  sourceSchemaId?: string | null;
+  cached?: boolean;
   persisted: boolean;
   message?: string;
 };
@@ -56,13 +58,23 @@ export async function fetchRulesBusinessObjects(): Promise<string[]> {
 
 export async function generateValidationRules(
   businessObject: string,
-  file: File,
+  file: File | null,
+  options?: { sourceSchemaId?: string; force?: boolean },
 ): Promise<GenerateRulesResponse> {
   const form = new FormData();
   form.append("businessObject", businessObject);
-  form.append("file", file);
+  if (file) {
+    form.append("file", file);
+  }
+  if (options?.sourceSchemaId) {
+    form.append("sourceSchemaId", options.sourceSchemaId);
+  }
+  if (options?.force) {
+    form.append("force", "true");
+  }
 
-  const response = await apiFetch("/api/rules/generate", {
+  const query = options?.force ? "?force=true" : "";
+  const response = await apiFetch(`/api/rules/generate${query}`, {
     method: "POST",
     body: form,
   });

@@ -1,5 +1,7 @@
 import { apiFetch, parseJson } from "@/lib/api/http";
 import { ComparisonApiError } from "@/lib/api/comparisons";
+import { triggerSignedDownload } from "@/lib/api/signedDownload";
+import type { SignedDownloadResponse } from "@/lib/api/signedDownload";
 
 export type ValidationFinding = {
   fieldName: string;
@@ -47,12 +49,20 @@ export type PlainLanguageReport = {
   filename?: string | null;
   totalRows?: number | null;
   fieldGroups: PlainLanguageFieldGroup[];
+  columnMapping?: Record<string, string>;
+  originalColumns?: string[];
+  sapColumns?: string[];
+  sapMetadataUsed?: boolean;
 };
 
 export type ExecuteCleanupResponse = {
+  sessionId: string;
   filename: string;
   rowCount: number;
   columns: string[];
+  originalColumns?: string[];
+  columnMapping?: Record<string, string>;
+  sapMetadataUsed?: boolean;
   detection: {
     source?: string;
     businessObject?: string;
@@ -80,6 +90,29 @@ export type ExecuteCleanupResponse = {
   evaluator?: string;
 };
 
+export type AutoFixResponse = {
+  sessionId: string;
+  ok: boolean;
+  refinedFilename: string;
+  columnMapping: Record<string, string>;
+  fixesApplied: number;
+  fixesSkipped: number;
+  appliedFixes: Array<{
+    fieldName: string;
+    ruleName: string;
+    transform?: string;
+    affectedCount?: number;
+  }>;
+  skippedFixes: Array<{
+    fieldName: string;
+    ruleName: string;
+    reason?: string;
+  }>;
+  sapMetadataUsed: boolean;
+  rowCount: number;
+  previewRefinedRows: Record<string, unknown>[];
+};
+
 export async function executeCleanup(
   file: File,
   options?: { businessObject?: string },
@@ -101,6 +134,36 @@ export async function executeCleanup(
   }
 
   return data as unknown as ExecuteCleanupResponse;
+}
+
+export async function triggerAutoFix(sessionId: string): Promise<AutoFixResponse> {
+  const response = await apiFetch(`/api/validation/sessions/${sessionId}/auto-fix`, {
+    method: "POST",
+  });
+
+  const data = await parseJson<Record<string, unknown>>(response);
+  if (!response.ok) {
+    throw new ComparisonApiError(response.status, data);
+  }
+
+  return data as unknown as AutoFixResponse;
+}
+
+export async function downloadRefinedFile(
+  sessionId: string,
+  filename: string,
+): Promise<void> {
+  const response = await apiFetch(
+    `/api/validation/sessions/${sessionId}/download-refined`,
+  );
+
+  if (!response.ok) {
+    const data = await parseJson<Record<string, unknown>>(response);
+    throw new ComparisonApiError(response.status, data);
+  }
+
+  const payload = await parseJson<SignedDownloadResponse>(response);
+  triggerSignedDownload(payload.signedUrl, payload.filename || filename);
 }
 
 export function isNeedsBusinessObjectCleanup(err: unknown): boolean {
