@@ -129,17 +129,8 @@ function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
               </p>
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 {finding.rule?.source ? (
-<<<<<<< HEAD
                   <span className="rounded border border-ink/20 px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
-                    {String(finding.rule.source).toUpperCase() === "CUSTOM"
-                      ? "Custom"
-                      : String(finding.rule.source).toUpperCase() === "PREDEFINED"
-                        ? "Predefined"
-                        : "AI"}
-=======
-                  <span className="rounded border border-white/20 px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
-                {sourceLabel(finding.rule?.source)}
->>>>>>> d628137d2c06f1070f5ed5b4ca2b43e1a4f42251
+                    {sourceLabel(finding.rule.source)}
                   </span>
                 ) : null}
                 <span
