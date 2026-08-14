@@ -140,6 +140,34 @@ export async function runComparison(batchId: string): Promise<{
   };
 }
 
+/**
+ * Poll the report until the run leaves "processing".
+ *
+ * POST /run now returns 202 as soon as the run starts instead of blocking until
+ * the report is ready, so the outcome is read from here. Rejects with the
+ * report's error_message when the run fails.
+ */
+export async function waitForComparisonReport(
+  batchId: string,
+  { intervalMs = 2000, timeoutMs = 15 * 60 * 1000 } = {},
+): Promise<ComparisonReport> {
+  const deadline = Date.now() + timeoutMs;
+
+  for (;;) {
+    const report = await fetchComparisonReport(batchId);
+
+    if (report.status === "completed") return report;
+    if (report.status === "failed") {
+      throw new Error(report.error_message || "Comparison failed");
+    }
+    if (Date.now() >= deadline) {
+      throw new Error("Comparison is still running; check the report later");
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+}
+
 export async function fetchComparisonReport(
   batchId: string,
 ): Promise<ComparisonReport> {

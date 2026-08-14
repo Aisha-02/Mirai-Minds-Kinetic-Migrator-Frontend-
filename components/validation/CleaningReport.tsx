@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import type {
   AutoFixResponse,
@@ -8,6 +9,63 @@ import type {
 } from "@/lib/api/validation";
 import { downloadRefinedFile } from "@/lib/api/validation";
 import { validationCopy } from "@/lib/mock/validation";
+
+const PAGE_SIZE = 8;
+
+function sourceLabel(source: string | undefined) {
+  const value = String(source || "").toUpperCase();
+  if (value === "CUSTOM") return "Custom";
+  if (value === "PREDEFINED") return "Predefined";
+  if (value === "AI") return "AI";
+  return source || "";
+}
+
+function filterFieldGroups(
+  groups: PlainLanguageFieldGroup[],
+  {
+    severity,
+    source,
+    field,
+    failedOnly,
+  }: {
+    severity: string;
+    source: string;
+    field: string;
+    failedOnly: boolean;
+  },
+) {
+  const fieldNeedle = field.trim().toLowerCase();
+  return groups
+    .filter((group) =>
+      fieldNeedle
+        ? group.fieldName.toLowerCase().includes(fieldNeedle)
+        : true,
+    )
+    .map((group) => {
+      const findings = group.findings.filter((finding) => {
+        if (failedOnly && finding.severity !== "error") return false;
+        if (severity && finding.severity !== severity) return false;
+        if (source) {
+          const value = String(finding.rule?.source || "").toLowerCase();
+          if (value !== source.toLowerCase()) return false;
+        }
+        return true;
+      });
+      if (findings.length === 0) return null;
+      return {
+        ...group,
+        findings,
+        findingCount: findings.length,
+        errorCount: findings
+          .filter((item) => item.severity === "error")
+          .reduce((sum, item) => sum + (item.affectedCount || 0), 0),
+        warningCount: findings
+          .filter((item) => item.severity === "warning")
+          .reduce((sum, item) => sum + (item.affectedCount || 0), 0),
+      } satisfies PlainLanguageFieldGroup;
+    })
+    .filter((group): group is PlainLanguageFieldGroup => group !== null);
+}
 
 type CleaningReportProps = {
   result?: ExecuteCleanupResponse | null;
@@ -73,11 +131,7 @@ function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 {finding.rule?.source ? (
                   <span className="rounded border border-white/20 px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
-                    {String(finding.rule.source).toUpperCase() === "CUSTOM"
-                      ? "Custom"
-                      : String(finding.rule.source).toUpperCase() === "PREDEFINED"
-                        ? "Predefined"
-                        : "AI"}
+                {sourceLabel(finding.rule?.source)}
                   </span>
                 ) : null}
                 <span
@@ -175,6 +229,29 @@ export function CleaningReport({
 }: CleaningReportProps) {
   const report = result?.report ?? null;
   const fieldGroups = report?.fieldGroups ?? [];
+  const [severity, setSeverity] = useState("");
+  const [source, setSource] = useState("");
+  const [fieldQuery, setFieldQuery] = useState("");
+  const [failedOnly, setFailedOnly] = useState(false);
+  const [page, setPage] = useState(1);
+
+  const filteredGroups = useMemo(
+    () =>
+      filterFieldGroups(fieldGroups, {
+        severity,
+        source,
+        field: fieldQuery,
+        failedOnly,
+      }),
+    [fieldGroups, severity, source, fieldQuery, failedOnly],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(filteredGroups.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedGroups = filteredGroups.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
   const summary = result?.summary;
   const totalRecords = summary?.totalRows ?? "—";
   const errors = summary?.errorCount ?? "—";
@@ -295,12 +372,97 @@ export function CleaningReport({
         </div>
       ) : (
         <div className="space-y-4">
-          <h4 className="font-headline-sm text-headline-sm text-on-surface">
-            Findings by field
-          </h4>
-          {fieldGroups.map((group) => (
-            <FieldGroupCard key={group.fieldName} group={group} />
-          ))}
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+            <h4 className="font-headline-sm text-headline-sm text-on-surface">
+              Findings by field
+            </h4>
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="flex items-center gap-2 font-body-sm text-body-sm text-on-surface-variant">
+                <input
+                  type="checkbox"
+                  checked={failedOnly}
+                  onChange={(event) => {
+                    setFailedOnly(event.target.checked);
+                    setPage(1);
+                  }}
+                />
+                Failed only
+              </label>
+              <select
+                value={severity}
+                onChange={(event) => {
+                  setSeverity(event.target.value);
+                  setPage(1);
+                }}
+                className="rounded border border-white/15 bg-surface-container-lowest px-2 py-1 font-body-sm text-body-sm text-on-surface"
+              >
+                <option value="">All severities</option>
+                <option value="error">Errors</option>
+                <option value="warning">Warnings</option>
+              </select>
+              <select
+                value={source}
+                onChange={(event) => {
+                  setSource(event.target.value);
+                  setPage(1);
+                }}
+                className="rounded border border-white/15 bg-surface-container-lowest px-2 py-1 font-body-sm text-body-sm text-on-surface"
+              >
+                <option value="">All sources</option>
+                <option value="custom">Custom</option>
+                <option value="predefined">Predefined</option>
+                <option value="ai">AI</option>
+              </select>
+              <input
+                type="search"
+                value={fieldQuery}
+                onChange={(event) => {
+                  setFieldQuery(event.target.value);
+                  setPage(1);
+                }}
+                placeholder="Filter by field"
+                className="rounded border border-white/15 bg-surface-container-lowest px-2 py-1 font-body-sm text-body-sm text-on-surface"
+              />
+            </div>
+          </div>
+          {filteredGroups.length === 0 ? (
+            <div className="rounded-xl border border-white/5 bg-surface-container-lowest/40 p-5 text-on-surface-variant">
+              No findings match the current filters.
+            </div>
+          ) : (
+            pagedGroups.map((group) => (
+              <FieldGroupCard key={group.fieldName} group={group} />
+            ))
+          )}
+          {filteredGroups.length > PAGE_SIZE ? (
+            <div className="flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant">
+              <span>
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+                {Math.min(currentPage * PAGE_SIZE, filteredGroups.length)} of{" "}
+                {filteredGroups.length} fields
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={currentPage <= 1}
+                  onClick={() => setPage((value) => Math.max(1, value - 1))}
+                  className="rounded border border-white/15 px-3 py-1 disabled:opacity-40"
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  disabled={currentPage >= totalPages}
+                  onClick={() =>
+                    setPage((value) => Math.min(totalPages, value + 1))
+                  }
+                  className="rounded border border-white/15 px-3 py-1 disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
 
