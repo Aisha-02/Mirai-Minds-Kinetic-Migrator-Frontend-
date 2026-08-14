@@ -27,8 +27,8 @@ export function SourceDataRulesCard({
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex h-[500px] flex-col overflow-hidden rounded-xl border border-white/10 bg-surface/60 backdrop-blur-[20px]">
-      <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-5">
+    <div className="flex h-[500px] flex-col overflow-hidden rounded-xl border border-ink/10 bg-surface shadow-card">
+      <div className="flex items-center justify-between border-b border-ink/10 bg-surface-container-low p-5">
         <div>
           <h3 className="font-headline-sm text-headline-sm text-on-surface">
             {adminCopy.sourceRulesTitle}
@@ -54,7 +54,7 @@ export function SourceDataRulesCard({
           </div>
         ) : (
           <table className="w-full border-collapse text-left">
-            <thead className="sticky top-0 z-10 border-b border-white/5 bg-surface/90 backdrop-blur-md">
+            <thead className="sticky top-0 z-10 border-b border-ink/10 bg-surface-container-high/95 backdrop-blur-md">
               <tr>
                 <th className="px-5 py-3 font-label-caps text-label-caps text-on-surface-variant">
                   Field Name
@@ -74,7 +74,7 @@ export function SourceDataRulesCard({
                 return (
                   <tr
                     key={field.fieldName}
-                    className="group border-b border-white/5 transition-colors hover:bg-white/5"
+                    className="group border-b border-ink/10 transition-colors hover:bg-ink/5"
                   >
                     <td className="flex items-center gap-2 px-5 py-3">
                       <Icon
@@ -97,7 +97,7 @@ export function SourceDataRulesCard({
         )}
       </div>
 
-      <div className="flex justify-center border-t border-white/5 bg-surface-container-lowest/50 p-3">
+      <div className="flex justify-center border-t border-ink/10 bg-surface-container-low p-3">
         <input
           ref={inputRef}
           type="file"
@@ -113,7 +113,7 @@ export function SourceDataRulesCard({
           type="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body-sm text-body-sm font-semibold text-on-primary transition-all hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body-sm text-body-sm font-semibold text-on-primary shadow-primary transition-all hover:bg-primary-fixed hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon name="upload_file" className="text-[18px]" />
           {fileName ? "Change Excel file" : adminCopy.uploadRulesLabel}

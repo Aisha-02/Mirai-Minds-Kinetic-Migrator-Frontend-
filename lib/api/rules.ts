@@ -18,11 +18,35 @@ export type FieldRule = {
   constraint?: string;
   severity?: string;
   category?: string;
+  /** true = apply, false = reject, null = pending AI suggestion. Omitted = apply (legacy). */
+  selected?: boolean | null;
   createdBy?: string | null;
   createdAt?: string | null;
   updatedBy?: string | null;
   updatedAt?: string | null;
 };
+
+export type PredefinedChecks = {
+  trim: boolean;
+  nullCheck: boolean;
+  duplicates: boolean;
+};
+
+export const DEFAULT_PREDEFINED_CHECKS: PredefinedChecks = {
+  trim: true,
+  nullCheck: true,
+  duplicates: true,
+};
+
+export function normalizePredefinedChecks(
+  checks?: Partial<PredefinedChecks> | null,
+): PredefinedChecks {
+  return {
+    trim: checks?.trim !== false,
+    nullCheck: checks?.nullCheck !== false,
+    duplicates: checks?.duplicates !== false,
+  };
+}
 
 export type FieldRulesDraft = {
   fieldName: string;
@@ -39,6 +63,7 @@ export type FieldRulesDraft = {
 export type RulesDraft = {
   businessObject: string;
   fields: FieldRulesDraft[];
+  predefinedChecks?: PredefinedChecks;
 };
 
 export type GenerateRulesResponse = {
@@ -198,6 +223,18 @@ export function isAiRule(rule: FieldRule) {
   return String(rule.source || "").toUpperCase() === "AI";
 }
 
+export function isRulePending(rule: FieldRule) {
+  return rule.selected === null;
+}
+
+export function isRuleSelected(rule: FieldRule) {
+  return rule.selected !== false && rule.selected !== null;
+}
+
+export function isRuleRejected(rule: FieldRule) {
+  return rule.selected === false;
+}
+
 export function upsertRuleInDraft(
   draft: RulesDraft | null,
   businessObject: string,
@@ -206,6 +243,7 @@ export function upsertRuleInDraft(
 ): RulesDraft {
   const next: RulesDraft = draft
     ? {
+        ...draft,
         businessObject: draft.businessObject || businessObject,
         fields: draft.fields.map((field) => ({
           ...field,
@@ -234,6 +272,45 @@ export function upsertRuleInDraft(
   }
 
   return { ...next, fields: [...next.fields] };
+}
+
+export function setRuleSelectedInDraft(
+  draft: RulesDraft | null,
+  ruleId: string,
+  selected: boolean,
+  fieldName?: string,
+): RulesDraft | null {
+  if (!draft) return draft;
+  const fieldKey = fieldName?.trim().toUpperCase();
+  return {
+    ...draft,
+    fields: draft.fields.map((field) => {
+      if (fieldKey && field.fieldName.trim().toUpperCase() !== fieldKey) {
+        return field;
+      }
+      return {
+        ...field,
+        rules: (field.rules || []).map((rule) =>
+          String(rule.ruleId || "") === ruleId ? { ...rule, selected } : rule,
+        ),
+      };
+    }),
+  };
+}
+
+export function setPredefinedCheckInDraft(
+  draft: RulesDraft | null,
+  key: keyof PredefinedChecks,
+  enabled: boolean,
+): RulesDraft | null {
+  if (!draft) return draft;
+  return {
+    ...draft,
+    predefinedChecks: {
+      ...normalizePredefinedChecks(draft.predefinedChecks),
+      [key]: enabled,
+    },
+  };
 }
 
 export function removeRuleFromDraft(

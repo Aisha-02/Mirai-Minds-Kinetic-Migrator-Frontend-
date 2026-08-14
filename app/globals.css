@@ -1,43 +1,50 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Kinetic Migrator — Stitch dark theme tokens */
-  --color-background: #0f1418;
-  --color-on-background: #dfe3e9;
-  --color-surface: #0f1418;
-  --color-on-surface: #dfe3e9;
-  --color-on-surface-variant: #bec7d2;
-  --color-surface-container: #1c2024;
-  --color-surface-container-low: #181c20;
-  --color-surface-container-high: #262a2f;
-  --color-surface-container-highest: #31353a;
-  --color-surface-container-lowest: #0a0f13;
-  --color-surface-variant: #31353a;
-  --color-surface-dim: #0f1418;
-  --color-surface-bright: #353a3e;
-  --color-outline: #89929b;
-  --color-outline-variant: #3f4850;
-  --color-primary: #90cdff;
-  --color-on-primary: #003450;
-  --color-primary-container: #2098dd;
-  --color-on-primary-container: #002c46;
-  --color-primary-fixed: #cbe6ff;
-  --color-primary-fixed-dim: #90cdff;
-  --color-secondary: #d0bcff;
-  --color-on-secondary: #3c0091;
-  --color-secondary-container: #571bc1;
-  --color-tertiary: #ffb871;
-  --color-on-tertiary: #4a2800;
-  --color-tertiary-container: #d07d11;
-  --color-on-tertiary-container: #412200;
-  --color-tertiary-fixed: #ffdcbe;
-  --color-tertiary-fixed-dim: #ffb871;
-  --color-brand-blue: #008fd3;
-  --color-error: #ffb4ab;
-  --color-error-container: #93000a;
-  --color-on-error-container: #ffdad6;
-  --color-status-online: #4ade80;
-  --color-status-healthy: #34d399;
+  /* Kinetic Migrator — light theme tokens.
+     Surface scale reads "lowest = most recessed, highest = most tinted";
+     white is reserved for elevated cards so they lift off the page. */
+  --color-background: #f4f6fa;
+  --color-on-background: #16202b;
+  --color-surface: #ffffff;
+  --color-on-surface: #16202b;
+  --color-on-surface-variant: #56626f;
+  --color-surface-container: #ffffff;
+  --color-surface-container-low: #f8fafc;
+  --color-surface-container-high: #f2f5f9;
+  --color-surface-container-highest: #e8edf4;
+  --color-surface-container-lowest: #eef2f7;
+  --color-surface-variant: #eef2f6;
+  --color-surface-dim: #eef2f7;
+  --color-surface-bright: #ffffff;
+  --color-outline: #8a97a6;
+  --color-outline-variant: #dbe2ea;
+  --color-primary: #1565c0;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1976d2;
+  --color-on-primary-container: #ffffff;
+  --color-primary-fixed: #0d4d92;
+  --color-primary-fixed-dim: #1976d2;
+  --color-secondary: #6d28d9;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #7c3aed;
+  --color-tertiary: #b45309;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #c2620a;
+  --color-on-tertiary-container: #ffffff;
+  --color-tertiary-fixed: #92400e;
+  --color-tertiary-fixed-dim: #92400e;
+  --color-brand-blue: #0077b6;
+  --color-error: #d92d20;
+  --color-error-container: #f04438;
+  --color-on-error-container: #7a271a;
+  --color-status-online: #15803d;
+  --color-status-healthy: #047857;
+
+  /* Neutral overlay base. Used with an opacity modifier (bg-ink/5,
+     border-ink/15, divide-ink/10) wherever a tint must sit on top of an
+     unknown surface instead of a fixed grey. */
+  --color-ink: #0f1a2a;
 
   --font-ibm-plex-sans: var(--font-ibm-plex-sans);
   --font-ibm-plex-mono: var(--font-ibm-plex-mono);
@@ -48,99 +55,149 @@
   --spacing-sidebar-width: 260px;
   --spacing-assistant-panel-width: 400px;
 
-  --radius-DEFAULT: 0.125rem;
-  --radius-lg: 0.25rem;
-  --radius-xl: 0.5rem;
+  --radius-DEFAULT: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
   --radius-full: 0.75rem;
+
+  --shadow-card: 0 1px 2px rgba(15, 26, 42, 0.04), 0 1px 3px rgba(15, 26, 42, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(15, 26, 42, 0.04),
+    0 8px 20px -6px rgba(15, 26, 42, 0.12);
+  --shadow-overlay: 0 24px 48px -12px rgba(15, 26, 42, 0.18);
+  --shadow-primary: 0 6px 16px -6px rgba(21, 101, 192, 0.45);
+  --shadow-tertiary: 0 6px 16px -6px rgba(194, 98, 10, 0.4);
 }
 
 @layer base {
+  html {
+    color-scheme: light;
+  }
+
   body {
     background: var(--color-background);
     color: var(--color-on-background);
     font-family: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
   }
+
+  /* Keyboard focus is the only visible focus affordance, so make it explicit
+     now that the surfaces no longer carry their own contrast. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary) 18%, transparent);
+    color: var(--color-on-surface);
+  }
+
+  * {
+    scrollbar-color: color-mix(in oklab, var(--color-ink) 22%, transparent)
+      transparent;
+    scrollbar-width: thin;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-ink) 18%, transparent);
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--color-ink) 30%, transparent);
+    background-clip: content-box;
+  }
 }
 
 @layer utilities {
   .glass-panel {
-    background: rgba(49, 53, 58, 0.4);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border: 1px solid rgba(137, 146, 155, 0.2);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid rgba(15, 26, 42, 0.08);
+    box-shadow: var(--shadow-overlay);
   }
 
   .glow-input:focus-within {
-    border-bottom-color: #008fd3;
-    box-shadow: 0 1px 0 0 #008fd3;
+    border-bottom-color: var(--color-brand-blue);
+    box-shadow: 0 1px 0 0 var(--color-brand-blue);
   }
 
   .glow-input-primary:focus-within {
-    border-bottom-color: #90cdff;
-    box-shadow: 0 1px 0 0 #90cdff;
+    border-bottom-color: var(--color-primary);
+    box-shadow: 0 1px 0 0 var(--color-primary);
   }
 
   .upload-zone {
-    border: 2px dashed var(--color-outline);
-    background-color: var(--color-surface-container-lowest);
+    border: 2px dashed var(--color-outline-variant);
+    background-color: var(--color-surface-container-low);
     transition: all 0.3s ease;
   }
 
   .upload-zone:hover {
     border-color: var(--color-primary);
-    background-color: rgba(144, 205, 255, 0.05);
+    background-color: color-mix(in oklab, var(--color-primary) 5%, transparent);
   }
 
   .workspace-glass {
-    background: rgba(15, 20, 24, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(15, 26, 42, 0.07);
   }
 
   .drop-zone {
-    border: 2px dashed rgba(137, 146, 155, 0.3);
+    border: 2px dashed rgba(15, 26, 42, 0.16);
     transition: all 0.2s ease;
   }
 
   .drop-zone.dragover {
-    border-color: #90cdff;
-    background: rgba(144, 205, 255, 0.05);
+    border-color: var(--color-primary);
+    background: color-mix(in oklab, var(--color-primary) 6%, transparent);
   }
 
   .mapping-glass {
-    background-color: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: var(--color-surface);
+    border: 1px solid rgba(15, 26, 42, 0.07);
+    box-shadow: var(--shadow-card);
   }
 
   .mapping-glass:hover {
-    background-color: rgba(255, 255, 255, 0.13);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--color-surface);
+    border: 1px solid rgba(21, 101, 192, 0.28);
+    box-shadow: var(--shadow-card-hover);
   }
 
   .table-row-border {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(15, 26, 42, 0.07);
   }
 
   .input-glass {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--color-surface-container-high);
+    border-bottom: 1px solid rgba(15, 26, 42, 0.14);
   }
 
   .input-glass:focus {
-    border-bottom: 1px solid #90cdff;
+    border-bottom: 1px solid var(--color-primary);
     outline: none;
   }
 
   .assistant-panel {
-    background: rgba(15, 20, 24, 0.8);
-    backdrop-filter: blur(60px);
-    -webkit-backdrop-filter: blur(60px);
-    border-left: 1px solid rgba(255, 184, 113, 0.2);
-    box-shadow: 0 0 40px rgba(208, 125, 17, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(40px) saturate(160%);
+    -webkit-backdrop-filter: blur(40px) saturate(160%);
+    border-left: 1px solid rgba(194, 98, 10, 0.22);
+    box-shadow: -18px 0 44px -20px rgba(15, 26, 42, 0.22);
   }
 
   .font-display-lg {
@@ -244,13 +301,13 @@
 
   @keyframes pulse-icon {
     0% {
-      box-shadow: 0 0 0 0 rgba(0, 143, 211, 0.4);
+      box-shadow: 0 0 0 0 rgba(0, 119, 182, 0.28);
     }
     70% {
-      box-shadow: 0 0 0 15px rgba(0, 143, 211, 0);
+      box-shadow: 0 0 0 15px rgba(0, 119, 182, 0);
     }
     100% {
-      box-shadow: 0 0 0 0 rgba(0, 143, 211, 0);
+      box-shadow: 0 0 0 0 rgba(0, 119, 182, 0);
     }
   }
 

@@ -38,10 +38,8 @@ function extractHeading(line: string): string {
  */
 export function parseAiReport(text: string): FormattedReportSection[] {
   const lines = String(text ?? "").split(/\r?\n/);
-  /** @type {FormattedReportSection[]} */
-  const sections = [];
-  /** @type {FormattedReportSection | null} */
-  let current = null;
+  const sections: FormattedReportSection[] = [];
+  let current: FormattedReportSection | null = null;
 
   function ensureSection(title = "Summary") {
     if (!current) {

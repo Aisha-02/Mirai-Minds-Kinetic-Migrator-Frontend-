@@ -8,7 +8,7 @@ export function PreviewControls() {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="mb-4 flex shrink-0 flex-col gap-3 rounded-xl border border-white/5 bg-surface-container-low p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className="mb-4 flex shrink-0 flex-col gap-3 rounded-xl border border-ink/10 bg-surface-container-low p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative">
           <Icon
@@ -25,14 +25,14 @@ export function PreviewControls() {
         </div>
         <button
           type="button"
-          className="flex items-center gap-2 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1.5 text-body-sm transition-colors hover:bg-white/5"
+          className="flex items-center gap-2 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1.5 text-body-sm transition-colors hover:bg-ink/5"
         >
           <Icon name="filter_list" className="text-[18px]" />
           {previewCopy.filterLabel}
         </button>
         <button
           type="button"
-          className="flex items-center gap-2 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1.5 text-body-sm transition-colors hover:bg-white/5"
+          className="flex items-center gap-2 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1.5 text-body-sm transition-colors hover:bg-ink/5"
         >
           <Icon name="sort" className="text-[18px]" />
           {previewCopy.sortLabel}

@@ -21,7 +21,7 @@ function formatWhen(value: string | null | undefined): string {
 }
 
 function statusClass(status: string): string {
-  if (status === "completed") return "text-primary";
+  if (status === "completed") return "text-status-healthy";
   if (status === "failed") return "text-error";
   if (status === "processing") return "text-tertiary";
   return "text-on-surface-variant";
@@ -118,13 +118,13 @@ export function ReportsHistoryScreen() {
           ) : null}
 
           {!loading && batches.length > 0 ? (
-            <div className="overflow-hidden rounded-xl border border-white/5 bg-surface-container">
-              <ul className="divide-y divide-white/5">
+            <div className="overflow-hidden rounded-xl border border-ink/10 bg-surface-container shadow-card">
+              <ul className="divide-y divide-ink/10">
                 {batches.map((batch) => (
                   <li key={batch.batch_id}>
                     <Link
                       href={`/reports/${batch.batch_id}`}
-                      className="flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-white/5 md:flex-row md:items-center"
+                      className="flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-ink/5 md:flex-row md:items-center"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
@@ -132,7 +132,7 @@ export function ReportsHistoryScreen() {
                             {batch.business_object || "Unknown object"}
                           </span>
                           <span
-                            className={`rounded border border-white/10 bg-surface-dim px-2 py-0.5 font-label-caps text-label-caps ${statusClass(batch.status)}`}
+                            className={`rounded border border-ink/15 bg-surface-dim px-2 py-0.5 font-label-caps text-label-caps ${statusClass(batch.status)}`}
                           >
                             {formatReportStatus(batch.status)}
                           </span>

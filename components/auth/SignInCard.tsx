@@ -5,7 +5,7 @@ import { SignInHeader } from "@/components/auth/SignInHeader";
 
 export function SignInCard() {
   return (
-    <GlassPanel className="flex flex-col gap-8 p-8">
+    <GlassPanel className="flex flex-col gap-6 p-8">
       <SignInHeader />
       <SignInForm />
       <SignInFooter />

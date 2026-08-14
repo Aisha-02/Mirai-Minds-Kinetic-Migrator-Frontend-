@@ -9,7 +9,7 @@ export function AiComparisonReport({ text }: AiComparisonReportProps) {
 
   return (
     <div className="mb-container-margin rounded-xl border border-outline-variant bg-surface-container p-6">
-      <h3 className="mb-6 font-headline-sm text-headline-sm text-white">
+      <h3 className="mb-6 font-headline-sm text-headline-sm text-on-surface">
         AI Comparison Summary
       </h3>
 
@@ -17,7 +17,7 @@ export function AiComparisonReport({ text }: AiComparisonReportProps) {
         {sections.map((section, index) => (
           <section
             key={`${section.title}-${index}`}
-            className="rounded-lg border border-white/5 bg-surface-container-high/50 p-5"
+            className="rounded-lg border border-ink/10 bg-surface-container-low p-5"
           >
             {section.title ? (
               <h4 className="mb-3 font-headline-sm text-headline-sm font-semibold text-primary">

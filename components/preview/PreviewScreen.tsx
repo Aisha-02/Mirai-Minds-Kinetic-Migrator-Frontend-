@@ -39,7 +39,7 @@ export function PreviewScreen() {
         </div>
 
         {!batchId ? (
-          <div className="rounded-xl border border-white/5 bg-surface-container p-8 text-center">
+          <div className="rounded-xl border border-ink/10 bg-surface-container p-8 shadow-card text-center">
             <Icon
               name="upload_file"
               className="mb-3 text-4xl text-on-surface-variant"

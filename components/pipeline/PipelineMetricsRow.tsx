@@ -38,7 +38,7 @@ function HealthGauge({ score }: { score: number }) {
           strokeWidth="4"
         />
       </svg>
-      <span className="absolute font-headline-sm text-headline-sm font-bold text-white">
+      <span className="absolute font-headline-sm text-headline-sm font-bold text-on-surface">
         {score}
         <span className="text-[10px]">%</span>
       </span>
@@ -49,7 +49,7 @@ function HealthGauge({ score }: { score: number }) {
 function MetricCard({ metric }: { metric: PipelineMetric }) {
   if (metric.footer.kind === "health") {
     return (
-      <div className="group relative flex flex-col justify-between overflow-hidden rounded-lg border border-outline-variant bg-surface-container p-4 transition-colors hover:bg-surface-container-high">
+      <div className="group relative flex flex-col justify-between overflow-hidden rounded-lg border border-outline-variant bg-surface-container p-4 shadow-card transition-shadow hover:shadow-card-hover">
         <div className="relative z-10 mb-1 flex items-start justify-between">
           <h3 className="font-label-caps text-label-caps uppercase text-on-surface">
             {metric.label}
@@ -89,7 +89,7 @@ function MetricCard({ metric }: { metric: PipelineMetric }) {
         : "text-primary";
 
   return (
-    <div className="group relative overflow-hidden rounded-lg border border-outline-variant bg-surface-container p-4 transition-colors hover:bg-surface-container-high">
+    <div className="group relative overflow-hidden rounded-lg border border-outline-variant bg-surface-container p-4 shadow-card transition-shadow hover:shadow-card-hover">
       <div className="relative z-10 mb-2 flex items-start justify-between gap-2">
         <h3 className="font-label-caps text-label-caps uppercase text-on-surface">
           {metric.label}
@@ -125,7 +125,7 @@ function MetricCard({ metric }: { metric: PipelineMetric }) {
               style={{ width: metric.footer.percentWidth }}
             />
           </span>
-          <span className="shrink-0 font-mono-data text-mono-data text-white">
+          <span className="shrink-0 font-mono-data text-mono-data text-on-surface">
             {metric.footer.label}
           </span>
         </div>

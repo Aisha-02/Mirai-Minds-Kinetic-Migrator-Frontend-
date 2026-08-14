@@ -35,7 +35,7 @@ export function ActiveRulesetCard({
           {statusLabel}
         </span>
       </div>
-      <div className="mt-2 rounded border border-white/5 bg-surface-container-lowest/50 p-3">
+      <div className="mt-2 rounded border border-ink/10 bg-surface-container-low p-3">
         <p className="truncate font-mono-data text-mono-data text-on-surface-variant">
           {businessObject
             ? `BO: ${businessObject}`

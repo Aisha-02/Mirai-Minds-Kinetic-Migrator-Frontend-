@@ -86,14 +86,14 @@ export function UploadZoneCard({
   }
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container p-6">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface-container p-6 shadow-card transition-shadow hover:shadow-card-hover">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-high">
             <Icon name={zone.headerIcon} className={iconTone} />
           </div>
           <div>
-            <h3 className="font-headline-sm text-headline-sm text-white">
+            <h3 className="font-headline-sm text-headline-sm text-on-surface">
               {zone.title}
             </h3>
             <p className="mt-1 font-label-caps text-label-caps font-bold uppercase text-on-surface">
@@ -148,7 +148,7 @@ export function UploadZoneCard({
           name="cloud_upload"
           className="mb-4 text-4xl text-on-surface transition-transform duration-300 group-hover:-translate-y-2"
         />
-        <p className="mb-2 text-center font-headline-sm text-headline-sm text-white">
+        <p className="mb-2 text-center font-headline-sm text-headline-sm text-on-surface">
           {fileName || zone.dropTitle}
         </p>
         <p className="mb-6 text-center font-body-sm text-body-sm font-bold text-on-surface">

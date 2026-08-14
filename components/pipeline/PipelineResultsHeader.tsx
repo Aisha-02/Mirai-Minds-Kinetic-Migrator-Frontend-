@@ -19,7 +19,7 @@ export function PipelineResultsHeader({
   return (
     <div className="mb-container-margin flex flex-col justify-between gap-6 md:flex-row md:items-end">
       <div>
-        <h2 className="mb-2 font-display-lg text-display-lg text-white">
+        <h2 className="mb-2 font-display-lg text-display-lg text-on-surface">
           {pipelineCopy.pageTitle}
         </h2>
         <p className="flex flex-wrap items-center gap-2 font-headline-sm text-headline-sm text-on-surface">
@@ -57,7 +57,7 @@ export function PipelineResultsHeader({
           type="button"
           disabled={!onDownloadPdf || downloading}
           onClick={onDownloadPdf}
-          className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container px-4 py-2.5 font-headline-sm text-headline-sm text-white transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container px-4 py-2.5 font-headline-sm text-headline-sm text-on-surface shadow-card transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon name="picture_as_pdf" />
           {downloading ? "Downloading…" : pipelineCopy.downloadPdfLabel}

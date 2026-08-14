@@ -116,7 +116,7 @@ export function StagingScreen() {
                 Business object
               </label>
               <select
-                className="w-full max-w-md rounded-lg border border-outline-variant bg-surface-container-high px-3 py-2 font-body-md text-body-md text-white"
+                className="w-full max-w-md rounded-lg border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface"
                 value={businessObject}
                 onChange={(event) => setBusinessObject(event.target.value)}
               >

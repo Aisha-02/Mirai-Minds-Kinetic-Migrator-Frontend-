@@ -7,12 +7,6 @@ export type ValidationIssue = {
   severity: "error" | "warning";
 };
 
-export type SuggestionChip = {
-  id: string;
-  label: string;
-  icon: string;
-};
-
 export const validationCopy = {
   pageTitle: "Data Cleaning Results",
   pageSubtitle:
@@ -28,7 +22,6 @@ export const validationCopy = {
   executeLabel: "Execute Cleaning",
   reportTitle: "Cleaning Report",
   reportMeta: "Generated just now • HR_Master_Preload_v2.csv",
-  suggestViaAiLabel: "Suggest via AI",
   downloadLabel: "Download (.xlsx)",
   totalRecordsLabel: "Total Records",
   totalRecordsValue: "14,205",
@@ -36,14 +29,6 @@ export const validationCopy = {
   errorsValue: "12",
   warningsLabel: "Warnings",
   warningsValue: "84",
-  assistantTitle: "AI Migration Assistant",
-  assistantSubtitle: "Powered by Kinetic Intelligence",
-  assistantPlaceholder: "Ask Kinetic AI...",
-  assistantMessagePrefix:
-    "I've analyzed the cleaning results against the rule sheet for",
-  assistantMessageRule: "VR-992-HR_MASTER",
-  assistantMessageSuffix:
-    "Would you like me to explain the issues found or suggest automated fixes for the 12 errors?",
 } as const;
 
 export const validationIssues: ValidationIssue[] = [
@@ -71,10 +56,4 @@ export const validationIssues: ValidationIssue[] = [
     rule: "Ref_Check_Hierarchy (Soft)",
     severity: "warning",
   },
-];
-
-export const validationSuggestions: SuggestionChip[] = [
-  { id: "explain", label: "Explain error codes", icon: "info" },
-  { id: "fixes", label: "Suggest data fixes", icon: "build" },
-  { id: "summarize", label: "Summarize rule violations", icon: "summarize" },
 ];

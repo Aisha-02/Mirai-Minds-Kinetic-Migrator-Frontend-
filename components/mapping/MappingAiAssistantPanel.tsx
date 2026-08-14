@@ -63,17 +63,17 @@ export function MappingAiAssistantPanel({
             </div>
             <p className="leading-relaxed text-on-surface">
               Lowest-confidence mapping:{" "}
-              <code className="rounded bg-black/20 px-1 font-mono-data text-tertiary-fixed">
+              <code className="rounded bg-ink/[0.06] px-1 font-mono-data text-tertiary-fixed">
                 {highlightMapping.sourceField}
               </code>{" "}
               →{" "}
-              <code className="rounded bg-black/20 px-1 font-mono-data text-tertiary-fixed">
+              <code className="rounded bg-ink/[0.06] px-1 font-mono-data text-tertiary-fixed">
                 {highlightMapping.sapField || "unmapped"}
               </code>{" "}
               ({formatConfidencePercent(highlightMapping.confidenceScore)}).
             </p>
             {highlightMapping.reasoning ? (
-              <div className="mt-2 rounded border border-white/5 bg-black/30 p-2">
+              <div className="mt-2 rounded border border-ink/10 bg-ink/[0.04] p-2">
                 <p className="text-[12px] text-on-surface-variant">
                   {highlightMapping.reasoning}
                 </p>
@@ -94,7 +94,7 @@ export function MappingAiAssistantPanel({
       </div>
 
       <div className="mt-auto flex flex-col gap-3 border-t border-tertiary/20 pt-4">
-        <div className="relative flex items-end gap-2 rounded-lg border border-white/10 bg-surface-container-high p-1 transition-colors focus-within:border-tertiary/50">
+        <div className="relative flex items-end gap-2 rounded-lg border border-ink/15 bg-surface-container-high p-1 transition-colors focus-within:border-tertiary/50">
           <textarea
             value={message}
             onChange={(event) => setMessage(event.target.value)}

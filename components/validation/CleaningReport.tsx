@@ -13,7 +13,6 @@ type CleaningReportProps = {
   result?: ExecuteCleanupResponse | null;
   autoFixResult?: AutoFixResponse | null;
   autoFixLoading?: boolean;
-  onSuggestAi?: () => void;
 };
 
 function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
@@ -24,14 +23,14 @@ function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
     <article
       className={`overflow-hidden rounded-xl border bg-surface-container ${tone}`}
     >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 bg-surface-container-high/60 px-5 py-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 bg-surface-container-high px-5 py-4">
         <div className="flex items-center gap-3">
           <Icon
             name="data_object"
             className={group.errorCount > 0 ? "text-error" : "text-tertiary"}
           />
           <div>
-            <h4 className="font-headline-sm text-headline-sm text-white">
+            <h4 className="font-headline-sm text-headline-sm text-on-surface">
               {group.fieldName}
             </h4>
             <p className="mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
@@ -54,7 +53,7 @@ function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
         </div>
       </header>
 
-      <ul className="divide-y divide-white/5">
+      <ul className="divide-y divide-ink/10">
         {group.findings.map((finding) => (
           <li
             key={`${group.fieldName}-${finding.ruleName}-${finding.summary}`}
@@ -72,7 +71,7 @@ function FieldGroupCard({ group }: { group: PlainLanguageFieldGroup }) {
               </p>
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 {finding.rule?.source ? (
-                  <span className="rounded border border-white/20 px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
+                  <span className="rounded border border-ink/20 px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
                     {String(finding.rule.source).toUpperCase() === "CUSTOM"
                       ? "Custom"
                       : String(finding.rule.source).toUpperCase() === "PREDEFINED"
@@ -132,14 +131,14 @@ function DataPreview({
     columns?.length ? columns : Object.keys(rows[0] || {});
 
   return (
-    <div className="mt-6 overflow-hidden rounded-xl border border-white/5">
-      <div className="border-b border-white/5 bg-surface-bright/20 px-4 py-3 font-headline-sm text-headline-sm text-on-surface">
+    <div className="mt-6 overflow-hidden rounded-xl border border-ink/10">
+      <div className="border-b border-ink/10 bg-surface-container-high px-4 py-3 font-headline-sm text-headline-sm text-on-surface">
         Data Preview
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left font-mono-data text-mono-data">
           <thead>
-            <tr className="bg-surface-bright/10">
+            <tr className="bg-surface-container-high">
               {displayColumns.map((col) => (
                 <th
                   key={col}
@@ -152,7 +151,7 @@ function DataPreview({
           </thead>
           <tbody>
             {rows.map((row, index) => (
-              <tr key={index} className="border-t border-white/5">
+              <tr key={index} className="border-t border-ink/10">
                 {displayColumns.map((col) => (
                   <td key={col} className="p-3 text-on-surface">
                     {row[col] == null ? "—" : String(row[col])}
@@ -171,7 +170,6 @@ export function CleaningReport({
   result = null,
   autoFixResult = null,
   autoFixLoading = false,
-  onSuggestAi,
 }: CleaningReportProps) {
   const report = result?.report ?? null;
   const fieldGroups = report?.fieldGroups ?? [];
@@ -197,7 +195,7 @@ export function CleaningReport({
 
   return (
     <div className="workspace-glass rounded-xl border-l-2 border-l-tertiary p-6">
-      <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 border-b border-ink/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h3 className="font-headline-md text-headline-md text-on-surface">
             {validationCopy.reportTitle}
@@ -240,21 +238,11 @@ export function CleaningReport({
                 : validationCopy.downloadLabel}
             </span>
           </button>
-          <button
-            type="button"
-            onClick={onSuggestAi}
-            className="flex items-center gap-2 rounded bg-tertiary-container px-4 py-2 text-on-tertiary shadow-sm transition-colors hover:bg-tertiary-fixed-dim"
-          >
-            <Icon name="smart_toy" className="text-[18px]" />
-            <span className="text-sm font-medium">
-              {validationCopy.suggestViaAiLabel}
-            </span>
-          </button>
         </div>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-white/5 bg-surface-container-lowest/50 p-4">
+        <div className="rounded-lg border border-ink/10 bg-surface-container-low p-4">
           <p className="mb-2 font-label-caps text-label-caps text-on-surface-variant">
             {validationCopy.totalRecordsLabel}
           </p>
@@ -285,7 +273,7 @@ export function CleaningReport({
       </div>
 
       {!result ? (
-        <div className="rounded-xl border border-white/5 bg-surface-container-lowest/40 p-5 text-on-surface-variant">
+        <div className="rounded-xl border border-ink/10 bg-surface-container-low p-5 text-on-surface-variant">
           Upload a preload file and click Execute Cleaning to see findings by
           field.
         </div>

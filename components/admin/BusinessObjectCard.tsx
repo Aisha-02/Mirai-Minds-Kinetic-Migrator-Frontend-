@@ -28,8 +28,8 @@ export function BusinessObjectCard({
   disabled = false,
 }: BusinessObjectCardProps) {
   return (
-    <div className="flex h-[500px] flex-col overflow-hidden rounded-xl border border-white/10 bg-surface/60 backdrop-blur-[20px]">
-      <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-5">
+    <div className="flex h-[500px] flex-col overflow-hidden rounded-xl border border-ink/10 bg-surface shadow-card">
+      <div className="flex items-center justify-between border-b border-ink/10 bg-surface-container-low p-5">
         <div>
           <h3 className="font-headline-sm text-headline-sm text-on-surface">
             {adminCopy.businessObjectTitle}
@@ -58,12 +58,12 @@ export function BusinessObjectCard({
                 type="button"
                 disabled={disabled}
                 onClick={() => onSelect(option.id)}
-                className="group w-full cursor-pointer rounded-lg border border-white/5 bg-white/5 p-4 text-left transition-all hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
+                className="group w-full cursor-pointer rounded-lg border border-ink/10 bg-surface-container-low p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                      selected ? "border-primary" : "border-white/20"
+                      selected ? "border-primary" : "border-ink/25"
                     }`}
                   >
                     {selected ? (
@@ -80,12 +80,12 @@ export function BusinessObjectCard({
         )}
       </div>
 
-      <div className="flex justify-center border-t border-white/5 bg-surface-container-lowest/50 p-3">
+      <div className="flex justify-center border-t border-ink/10 bg-surface-container-low p-3">
         <button
           type="button"
           disabled={disabled || !selectedId || confirming || loading}
           onClick={onConfirm}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body-sm text-body-sm font-semibold text-on-primary transition-all hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body-sm text-body-sm font-semibold text-on-primary shadow-primary transition-all hover:bg-primary-fixed hover:shadow-card-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon name="check_circle" className="text-[18px]" />
           {confirming ? "Generating…" : confirmLabel}

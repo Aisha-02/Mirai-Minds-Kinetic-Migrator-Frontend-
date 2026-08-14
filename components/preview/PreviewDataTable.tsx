@@ -43,8 +43,8 @@ export function PreviewDataTable({ file }: PreviewDataTableProps) {
       : file.rows.slice(0, PREVIEW_ROW_LIMIT);
 
   return (
-    <div className="mt-6 overflow-hidden rounded-xl border border-white/5 bg-surface-container">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 bg-surface-container-highest px-4 py-3">
+    <div className="mt-6 overflow-hidden rounded-xl border border-ink/10 bg-surface-container shadow-card">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 bg-surface-container-highest px-4 py-3">
         <div>
           <h3 className="font-headline-sm text-headline-sm text-on-surface">
             {file.original_filename}
@@ -55,7 +55,7 @@ export function PreviewDataTable({ file }: PreviewDataTableProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded border border-white/10 bg-surface-dim px-2 py-0.5 font-label-caps text-label-caps text-on-surface-variant">
+          <span className="rounded border border-ink/15 bg-surface-dim px-2 py-0.5 font-label-caps text-label-caps text-on-surface-variant">
             {showFullPreview || !truncated
               ? `Showing all ${file.rows.length.toLocaleString()} rows`
               : `Showing first ${PREVIEW_ROW_LIMIT} of ${file.rows.length.toLocaleString()} rows`}
@@ -86,7 +86,7 @@ export function PreviewDataTable({ file }: PreviewDataTableProps) {
       ) : (
         <div className="max-h-[min(70vh,720px)] overflow-auto">
           <table className="w-full min-w-max border-collapse text-left">
-            <thead className="sticky top-0 z-10 border-b border-white/10 bg-surface-container">
+            <thead className="sticky top-0 z-10 border-b border-ink/10 bg-surface-container-highest">
               <tr>
                 {columns.map((column) => (
                   <th
@@ -102,7 +102,7 @@ export function PreviewDataTable({ file }: PreviewDataTableProps) {
               {visibleRows.map((row, rowIndex) => (
                 <tr
                   key={`row-${rowIndex}`}
-                  className="border-b border-white/5 transition-colors hover:bg-white/5"
+                  className="border-b border-ink/10 transition-colors hover:bg-ink/5"
                 >
                   {columns.map((column) => (
                     <td

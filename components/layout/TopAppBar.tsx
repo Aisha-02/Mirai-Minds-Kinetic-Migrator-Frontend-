@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import { workspaceCopy } from "@/lib/mock/workspace";
 
@@ -28,7 +27,7 @@ export function TopAppBar({
   if (isAdmin) {
     return (
       <header
-        className={`fixed top-0 right-0 left-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-surface/40 px-8 shadow-sm backdrop-blur-[40px] transition-[right] duration-300 md:left-sidebar-width ${
+        className={`fixed top-0 right-0 left-0 z-30 flex h-16 items-center justify-between border-b border-ink/10 bg-surface/85 px-8 shadow-card backdrop-blur-[40px] transition-[right] duration-300 md:left-sidebar-width ${
           assistantOpen ? "xl:right-assistant-panel-width" : ""
         }`}
       >
@@ -61,7 +60,7 @@ export function TopAppBar({
   if (isAnalysis) {
     return (
       <header
-        className={`fixed top-0 right-0 left-0 z-40 flex h-16 items-center justify-between border-b border-white/5 bg-surface/40 px-8 shadow-sm backdrop-blur-[40px] transition-[right] duration-300 md:left-sidebar-width ${
+        className={`fixed top-0 right-0 left-0 z-40 flex h-16 items-center justify-between border-b border-ink/10 bg-surface/85 px-8 shadow-card backdrop-blur-[40px] transition-[right] duration-300 md:left-sidebar-width ${
           assistantOpen ? "xl:right-assistant-panel-width" : ""
         }`}
       >
@@ -69,7 +68,7 @@ export function TopAppBar({
           <span className="font-headline-md text-headline-md font-black text-primary">
             {workspaceCopy.productName}
           </span>
-          <div className="mx-2 hidden h-6 w-px bg-white/10 sm:block" />
+          <div className="mx-2 hidden h-6 w-px bg-ink/15 sm:block" />
           <span className="hidden truncate font-headline-sm text-headline-sm text-on-surface sm:inline">
             {pageTitle ?? "AI Analysis & Mapping Hub"}
           </span>
@@ -96,27 +95,23 @@ export function TopAppBar({
 
   if (isReports) {
     return (
-      <header className="fixed top-0 right-0 left-0 z-30 flex h-16 items-center justify-between border-b border-outline-variant bg-surface px-8 shadow-sm md:left-sidebar-width">
-        <div className="flex flex-1 items-center gap-8">
-          <Image
-            src="/workspace-logo.png"
-            alt={workspaceCopy.logoAlt}
-            width={32}
-            height={32}
-            className="h-8 w-auto object-contain"
-          />
+      <header className="fixed top-0 right-0 left-0 z-30 flex h-16 items-center justify-between border-b border-ink/10 bg-surface px-8 shadow-card md:left-sidebar-width">
+        <div className="flex items-center gap-4">
+          <span className="font-headline-md text-headline-md font-black tracking-tight text-primary">
+            {workspaceCopy.productName}
+          </span>
         </div>
         <div className="flex items-center gap-6">
           <button
             type="button"
-            className="cursor-pointer text-on-surface transition-all hover:text-white"
+            className="cursor-pointer text-on-surface-variant transition-all hover:text-primary"
             aria-label="Notifications"
           >
             <Icon name="notifications" />
           </button>
           <button
             type="button"
-            className="mr-4 cursor-pointer text-on-surface transition-all hover:text-white"
+            className="mr-4 cursor-pointer text-on-surface-variant transition-all hover:text-primary"
             aria-label="Settings"
           >
             <Icon name="settings" />
@@ -128,11 +123,7 @@ export function TopAppBar({
 
   if (isValidation) {
     return (
-      <header
-        className={`fixed top-0 right-0 left-sidebar-width z-30 flex h-16 items-center justify-between border-b border-white/5 bg-surface/40 px-8 shadow-sm backdrop-blur-[40px] transition-[right] duration-300 ${
-          assistantOpen ? "xl:right-assistant-panel-width" : ""
-        }`}
-      >
+      <header className="fixed top-0 right-0 left-0 z-30 flex h-16 items-center justify-between border-b border-ink/10 bg-surface/85 px-8 shadow-card backdrop-blur-[40px] md:left-sidebar-width">
         <div className="flex items-center gap-4">
           <h2 className="font-headline-md text-headline-md font-black text-primary">
             {workspaceCopy.productName}
@@ -162,18 +153,12 @@ export function TopAppBar({
     <header
       className={
         isPreview
-          ? "fixed top-0 right-0 left-sidebar-width z-30 flex h-16 items-center justify-between border-b border-white/5 bg-surface/40 px-8 shadow-sm backdrop-blur-[40px]"
-          : "fixed top-0 right-0 left-0 z-30 hidden h-16 items-center justify-between border-b border-outline-variant bg-surface px-8 shadow-sm md:left-sidebar-width md:flex"
+          ? "fixed top-0 right-0 left-sidebar-width z-30 flex h-16 items-center justify-between border-b border-ink/10 bg-surface/85 px-8 shadow-card backdrop-blur-[40px]"
+          : "fixed top-0 right-0 left-0 z-30 hidden h-16 items-center justify-between border-b border-ink/10 bg-surface px-8 shadow-card md:left-sidebar-width md:flex"
       }
     >
       <div className="flex items-center gap-4">
-        <span
-          className={
-            isPreview
-              ? "font-headline-md text-headline-md font-black tracking-tight text-primary"
-              : "font-headline-md text-headline-md font-black text-white"
-          }
-        >
+        <span className="font-headline-md text-headline-md font-black tracking-tight text-primary">
           {workspaceCopy.productName}
         </span>
         {!isPreview && pageTitle ? (
@@ -189,22 +174,14 @@ export function TopAppBar({
       <div className="flex items-center gap-4">
         <button
           type="button"
-          className={
-            isPreview
-              ? "cursor-pointer text-on-surface-variant transition-all hover:text-primary"
-              : "cursor-pointer text-on-surface-variant transition-all hover:text-white"
-          }
+          className="cursor-pointer text-on-surface-variant transition-all hover:text-primary"
           aria-label="Notifications"
         >
           <Icon name="notifications" />
         </button>
         <button
           type="button"
-          className={
-            isPreview
-              ? "cursor-pointer text-on-surface-variant transition-all hover:text-primary"
-              : "cursor-pointer text-on-surface-variant transition-all hover:text-white"
-          }
+          className="cursor-pointer text-on-surface-variant transition-all hover:text-primary"
           aria-label="Settings"
         >
           <Icon name="settings" />

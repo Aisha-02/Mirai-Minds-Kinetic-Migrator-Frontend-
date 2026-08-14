@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { SideNav } from "@/components/layout/SideNav";
 import { TopAppBar } from "@/components/layout/TopAppBar";
 import { ActiveRulesetCard } from "@/components/validation/ActiveRulesetCard";
-import { AiAssistantPanel } from "@/components/validation/AiAssistantPanel";
 import { CleaningReport } from "@/components/validation/CleaningReport";
 import { ExecuteCleaningButton } from "@/components/validation/ExecuteCleaningButton";
 import { SourceDataUpload } from "@/components/validation/SourceDataUpload";
@@ -20,7 +19,6 @@ import {
 } from "@/lib/api/validation";
 
 export function ValidationScreen() {
-  const [assistantOpen, setAssistantOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [businessObject, setBusinessObject] = useState("");
   const [candidates, setCandidates] = useState<string[]>([]);
@@ -55,8 +53,8 @@ export function ValidationScreen() {
       setNeedsBo(false);
       if (response.autoFix?.ok) {
         setAutoFixResult({
-          sessionId: response.sessionId,
           ...response.autoFix,
+          sessionId: response.sessionId,
         });
         lastAutoFixSessionRef.current = response.sessionId;
       }
@@ -89,11 +87,11 @@ export function ValidationScreen() {
     let cancelled = false;
     lastAutoFixSessionRef.current = sessionId;
 
-    async function runAutoFix() {
+    async function runAutoFix(activeSessionId: string) {
       setAutoFixLoading(true);
       setAutoFixError(null);
       try {
-        const response = await triggerAutoFix(sessionId);
+        const response = await triggerAutoFix(activeSessionId);
         if (!cancelled) {
           setAutoFixResult(response);
         }
@@ -108,7 +106,7 @@ export function ValidationScreen() {
       }
     }
 
-    void runAutoFix();
+    void runAutoFix(sessionId);
 
     return () => {
       cancelled = true;
@@ -116,20 +114,12 @@ export function ValidationScreen() {
   }, [result?.sessionId]);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background text-on-surface antialiased">
+    <div className="flex min-h-screen overflow-x-hidden bg-background text-on-surface antialiased">
       <SideNav activeKey="validate" />
-      <TopAppBar variant="validation" assistantOpen={assistantOpen} />
-      <AiAssistantPanel
-        open={assistantOpen}
-        onClose={() => setAssistantOpen(false)}
-      />
+      <TopAppBar variant="validation" />
 
-      <main
-        className={`min-h-screen w-full overflow-y-auto pt-16 pl-sidebar-width transition-[padding] duration-300 ${
-          assistantOpen ? "xl:pr-assistant-panel-width" : "pr-0"
-        }`}
-      >
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 p-section-padding md:p-8">
+      <main className="flex min-h-screen w-full flex-col bg-background pt-16 md:pl-sidebar-width">
+        <div className="mx-auto flex w-full max-w-[1600px] flex-grow flex-col gap-6 p-section-padding lg:p-container-margin">
           <ValidationPageHeader />
 
           {error ? (
@@ -150,7 +140,7 @@ export function ValidationScreen() {
                 Select business object, then run again
               </label>
               <select
-                className="w-full max-w-md rounded-lg border border-outline-variant bg-surface-container-high px-3 py-2 font-body-md text-body-md text-white"
+                className="w-full max-w-md rounded-lg border border-outline-variant bg-surface px-3 py-2 font-body-md text-body-md text-on-surface"
                 value={businessObject}
                 onChange={(event) => setBusinessObject(event.target.value)}
               >
@@ -204,7 +194,6 @@ export function ValidationScreen() {
             result={result}
             autoFixResult={autoFixResult}
             autoFixLoading={autoFixLoading}
-            onSuggestAi={() => setAssistantOpen(true)}
           />
         </div>
       </main>
