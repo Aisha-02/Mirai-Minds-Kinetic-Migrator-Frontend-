@@ -9,7 +9,7 @@ import { StagingPageHeader } from "@/components/staging/StagingPageHeader";
 import { TransformationDocuments } from "@/components/staging/TransformationDocuments";
 import { UploadZoneCard } from "@/components/staging/UploadZoneCard";
 import { ValidationPipeline } from "@/components/staging/ValidationPipeline";
-import { runComparison } from "@/lib/api/comparisons";
+import { runComparison, waitForComparisonReport } from "@/lib/api/comparisons";
 import {
   buildProcessingStatusText,
   buildProcessingSteps,
@@ -49,6 +49,8 @@ export function ProcessingScreen() {
 
       try {
         await runComparison(batch.batchId);
+        if (cancelled) return;
+        await waitForComparisonReport(batch.batchId);
         if (cancelled) return;
         setProgress(100);
         window.setTimeout(() => {
