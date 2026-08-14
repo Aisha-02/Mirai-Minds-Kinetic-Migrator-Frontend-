@@ -11,6 +11,8 @@ export const workspaceCopy = {
   productName: "Kinetic Migrator",
   logoAlt: "Kinetic Migrator New Logo",
   avatarAlt: "User avatar",
+  systemHealthy: "System Healthy",
+  statusOnline: "Status: Online",
 } as const;
 
 export const workspaceNavPrimary: NavItem[] = [
