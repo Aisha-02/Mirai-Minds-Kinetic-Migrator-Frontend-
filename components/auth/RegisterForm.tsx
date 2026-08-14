@@ -1,14 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { RoleSegmentedControl } from "@/components/auth/RoleSegmentedControl";
 import { Button } from "@/components/ui/Button";
-import { Checkbox } from "@/components/ui/Checkbox";
 import { TextField } from "@/components/ui/TextField";
 import { registerAccount } from "@/lib/api/auth";
 import {
   mockRegisterDefaults,
-  placeholderTermsSections,
   registerCopy,
   registerPlaceholders,
   type RegisterFormValues,
@@ -49,7 +49,7 @@ export function RegisterForm({
       return "Passwords do not match";
     }
     if (!current.agreeToTerms) {
-      return "Please accept the Terms and Conditions";
+      return "Please accept the Terms of Service and Privacy Policy";
     }
     return null;
   }
@@ -112,51 +112,11 @@ export function RegisterForm({
           autoComplete="email"
         />
 
-        <fieldset className="flex flex-col gap-2">
-          <legend className="font-label-caps text-label-caps text-on-surface-variant">
-            {registerCopy.roleLabel}
-          </legend>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label
-              className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-3 transition-colors ${
-                values.role === "normal_user"
-                  ? "border-primary bg-primary/10"
-                  : "border-outline-variant bg-surface-container"
-              }`}
-            >
-              <input
-                type="radio"
-                name="role"
-                value="normal_user"
-                checked={values.role === "normal_user"}
-                onChange={() => updateField("role", "normal_user")}
-                className="mt-1"
-              />
-              <span className="font-body-sm text-body-sm text-on-surface">
-                {registerCopy.roleUserLabel}
-              </span>
-            </label>
-            <label
-              className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-3 transition-colors ${
-                values.role === "admin"
-                  ? "border-primary bg-primary/10"
-                  : "border-outline-variant bg-surface-container"
-              }`}
-            >
-              <input
-                type="radio"
-                name="role"
-                value="admin"
-                checked={values.role === "admin"}
-                onChange={() => updateField("role", "admin")}
-                className="mt-1"
-              />
-              <span className="font-body-sm text-body-sm text-on-surface">
-                {registerCopy.roleAdminLabel}
-              </span>
-            </label>
-          </div>
-        </fieldset>
+        <RoleSegmentedControl
+          label={registerCopy.roleLabel}
+          value={values.role}
+          onChange={(role) => updateField("role", role)}
+        />
 
         <TextField
           id="password"
@@ -182,42 +142,34 @@ export function RegisterForm({
           autoComplete="new-password"
         />
 
-        <section
-          className="flex flex-col gap-2 rounded-lg border border-outline-variant bg-surface-container px-3 py-3"
-          aria-labelledby="terms-heading"
-        >
-          <h2
-            id="terms-heading"
-            className="font-label-caps text-label-caps text-on-surface-variant"
-          >
-            {registerCopy.termsHeading}
-          </h2>
+        <div className="mb-2 mt-1 flex items-center gap-2">
+          <input
+            id="terms"
+            type="checkbox"
+            checked={values.agreeToTerms}
+            onChange={(event) =>
+              updateField("agreeToTerms", event.target.checked)
+            }
+            required
+            className="h-4 w-4 rounded border-outline-variant bg-surface-container-high text-brand-blue focus:ring-brand-blue focus:ring-offset-background"
+          />
           <p className="font-body-sm text-body-sm text-on-surface-variant">
-            {registerCopy.termsDisclaimer}
+            {registerCopy.termsAgreeLead}{" "}
+            <Link
+              href="/legal#terms-of-service"
+              className="font-medium text-primary hover:text-primary-fixed"
+            >
+              {registerCopy.termsOfService}
+            </Link>
+            {" & "}
+            <Link
+              href="/legal#privacy-policy"
+              className="font-medium text-primary hover:text-primary-fixed"
+            >
+              {registerCopy.privacyPolicy}
+            </Link>
           </p>
-          <div className="max-h-40 overflow-y-auto rounded-lg border border-outline-variant bg-surface-container-high px-3 py-2">
-            <div className="flex flex-col gap-3">
-              {placeholderTermsSections.map((section) => (
-                <div key={section.title} className="flex flex-col gap-1">
-                  <h3 className="font-body-sm text-body-sm font-semibold text-on-surface">
-                    {section.title}
-                  </h3>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">
-                    {section.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <Checkbox
-          id="terms"
-          checked={values.agreeToTerms}
-          onChange={(event) => updateField("agreeToTerms", event.target.checked)}
-          required
-          label={registerCopy.termsPrefix}
-        />
+        </div>
       </div>
 
       {error ? (

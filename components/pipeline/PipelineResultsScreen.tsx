@@ -12,7 +12,7 @@ export function PipelineResultsScreen() {
   const batchId = useMemo(() => getActiveBatch()?.batchId ?? null, []);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-surface-container-lowest text-white antialiased">
+    <div className="min-h-screen overflow-x-hidden bg-background text-on-surface antialiased">
       <SideNav activeKey="reports" />
       <TopAppBar variant="reports" />
 

@@ -2,8 +2,16 @@
 
 import { useMemo } from "react";
 import { Icon } from "@/components/ui/Icon";
-import type { FieldRule, RulesDraft } from "@/lib/api/rules";
-import { isAiRule, isCustomRule } from "@/lib/api/rules";
+import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
+import type { FieldRule, PredefinedChecks, RulesDraft } from "@/lib/api/rules";
+import {
+  isAiRule,
+  isCustomRule,
+  isRulePending,
+  isRuleRejected,
+  isRuleSelected,
+  normalizePredefinedChecks,
+} from "@/lib/api/rules";
 import { adminCopy } from "@/lib/mock/admin";
 
 export type DisplayedRuleCard = {
@@ -23,29 +31,22 @@ type ValidationSelectionCardProps = {
   onAddCustom?: () => void;
   onEditCustom?: (card: DisplayedRuleCard) => void;
   onDeleteCustom?: (card: DisplayedRuleCard) => void;
+  onTogglePredefined?: (key: keyof PredefinedChecks, enabled: boolean) => void;
+  onSelectRule?: (card: DisplayedRuleCard, selected: boolean) => void;
   suggesting?: boolean;
   addingCustom?: boolean;
   message?: string | null;
 };
 
-const PREDEFINED_TOGGLES = [
-  { id: "trim", label: "Trim Empty Spaces", keywords: ["trim", "space"] },
-  { id: "null", label: "Check Null Keys", keywords: ["null", "key"] },
-  { id: "dup", label: "Remove Duplicate Records", keywords: ["duplicate", "dup"] },
-] as const;
-
-function hasPredefinedRule(
-  fields: RulesDraft["fields"],
-  keywords: readonly string[],
-) {
-  return fields.some((field) =>
-    (field.rules || []).some((rule) => {
-      if (String(rule.source).toUpperCase() !== "PREDEFINED") return false;
-      const haystack = `${rule.ruleName} ${rule.description ?? ""} ${rule.constraint ?? ""}`.toLowerCase();
-      return keywords.some((keyword) => haystack.includes(keyword));
-    }),
-  );
-}
+const PREDEFINED_TOGGLES: {
+  id: keyof PredefinedChecks;
+  label: string;
+  icon: string;
+}[] = [
+  { id: "duplicates", label: "Remove Duplicate Records", icon: "library_add_check" },
+  { id: "nullCheck", label: "Check Null Keys", icon: "key" },
+  { id: "trim", label: "Trim Empty Spaces", icon: "space_bar" },
+];
 
 function SourceBadge({ source }: { source: "AI" | "CUSTOM" }) {
   const isCustom = source === "CUSTOM";
@@ -62,6 +63,112 @@ function SourceBadge({ source }: { source: "AI" | "CUSTOM" }) {
   );
 }
 
+function SelectionButtons({
+  card,
+  onSelectRule,
+}: {
+  card: DisplayedRuleCard;
+  onSelectRule?: (card: DisplayedRuleCard, selected: boolean) => void;
+}) {
+  const selected = isRuleSelected(card.rule);
+  const rejected = isRuleRejected(card.rule);
+  const pending = isRulePending(card.rule);
+
+  return (
+    <div className="flex shrink-0 items-center gap-1">
+      <button
+        type="button"
+        onClick={() => onSelectRule?.(card, true)}
+        disabled={!onSelectRule}
+        className={`flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
+          selected && !pending
+            ? "border-primary bg-primary text-on-primary"
+            : "border-ink/15 bg-surface text-on-surface-variant hover:border-primary/40 hover:text-primary"
+        }`}
+        aria-label={`Select ${card.title}`}
+        aria-pressed={selected && !pending}
+      >
+        <Icon name="check" className="text-[18px]" />
+      </button>
+      <button
+        type="button"
+        onClick={() => onSelectRule?.(card, false)}
+        disabled={!onSelectRule}
+        className={`flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
+          rejected
+            ? "border-error/40 bg-error/15 text-error"
+            : "border-ink/15 bg-surface text-on-surface-variant hover:border-error/40 hover:text-error"
+        }`}
+        aria-label={`Reject ${card.title}`}
+        aria-pressed={rejected}
+      >
+        <Icon name="close" className="text-[18px]" />
+      </button>
+    </div>
+  );
+}
+
+function RuleCard({
+  card,
+  onSelectRule,
+  onEditCustom,
+  onDeleteCustom,
+}: {
+  card: DisplayedRuleCard;
+  onSelectRule?: (card: DisplayedRuleCard, selected: boolean) => void;
+  onEditCustom?: (card: DisplayedRuleCard) => void;
+  onDeleteCustom?: (card: DisplayedRuleCard) => void;
+}) {
+  const selected = isRuleSelected(card.rule) && !isRulePending(card.rule);
+
+  return (
+    <div
+      className={`flex items-start justify-between gap-2 rounded-lg border p-3 ${
+        selected
+          ? "border-primary/30 bg-primary/5"
+          : isRuleRejected(card.rule)
+            ? "border-ink/10 bg-surface-container-low opacity-70"
+            : "border-ink/10 bg-surface-container-low"
+      }`}
+    >
+      <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-body-md text-body-md font-semibold text-on-surface">
+            {card.title}
+          </span>
+          <SourceBadge source={card.source} />
+        </div>
+        <span className="text-[10px] text-on-surface-variant opacity-70">
+          {card.fieldName} · {card.subtitle}
+        </span>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        <SelectionButtons card={card} onSelectRule={onSelectRule} />
+        {card.source === "CUSTOM" ? (
+          <>
+            <button
+              type="button"
+              onClick={() => onEditCustom?.(card)}
+              className="rounded-md p-1 text-on-surface-variant transition-colors hover:bg-ink/10 hover:text-on-surface"
+              aria-label="Edit custom rule"
+            >
+              <Icon name="edit" className="text-[16px]" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onDeleteCustom?.(card)}
+              className="rounded-md p-1 text-on-surface-variant transition-colors hover:bg-ink/10 hover:text-error"
+              aria-label="Delete custom rule"
+            >
+              <Icon name="delete" className="text-[16px]" />
+            </button>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function ValidationSelectionCard({
   predefinedCount,
   displayedRules,
@@ -70,27 +177,32 @@ export function ValidationSelectionCard({
   onAddCustom,
   onEditCustom,
   onDeleteCustom,
+  onTogglePredefined,
+  onSelectRule,
   suggesting = false,
   addingCustom = false,
   message = null,
 }: ValidationSelectionCardProps) {
-  const fields = rulesDraft?.fields ?? [];
+  const checks = normalizePredefinedChecks(rulesDraft?.predefinedChecks);
+  const canToggle = Boolean(rulesDraft && onTogglePredefined);
 
-  const toggleStates = useMemo(
-    () =>
-      PREDEFINED_TOGGLES.map((toggle) => ({
-        ...toggle,
-        active: hasPredefinedRule(fields, toggle.keywords),
-      })),
-    [fields],
-  );
+  const aiRules = displayedRules.filter((rule) => rule.source === "AI");
+  const customRules = displayedRules.filter((rule) => rule.source === "CUSTOM");
+  const pendingCount = aiRules.filter((card) => isRulePending(card.rule)).length;
 
-  const aiCount = displayedRules.filter((rule) => rule.source === "AI").length;
-  const customCount = displayedRules.filter((rule) => rule.source === "CUSTOM").length;
+  const footerText = useMemo(() => {
+    if (pendingCount > 0) {
+      return `${pendingCount} suggestion${pendingCount === 1 ? "" : "s"} pending review`;
+    }
+    if (displayedRules.length > 0) {
+      return `${aiRules.length} AI · ${customRules.length} custom rule(s)`;
+    }
+    return "No AI or custom rules yet";
+  }, [pendingCount, displayedRules.length, aiRules.length, customRules.length]);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-surface/60 backdrop-blur-[20px]">
-      <div className="flex flex-col gap-3 border-b border-white/5 bg-white/[0.02] p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col overflow-hidden rounded-xl border border-ink/10 bg-surface shadow-card">
+      <div className="flex flex-col gap-3 border-b border-ink/10 bg-surface-container-low p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="font-headline-sm text-headline-sm text-on-surface">
             {adminCopy.validationTitle}
@@ -104,7 +216,7 @@ export function ValidationSelectionCard({
             type="button"
             onClick={onAddCustom}
             disabled={addingCustom}
-            className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary-container px-3 py-1.5 font-body-sm text-body-sm font-semibold text-on-primary-container transition-all hover:bg-primary-container/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary-container px-3 py-1.5 font-body-sm text-body-sm font-semibold text-on-primary-container shadow-primary transition-all hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon name="add" className="text-[18px]" />
             {adminCopy.addCustomRuleLabel}
@@ -113,7 +225,7 @@ export function ValidationSelectionCard({
             type="button"
             onClick={onSuggestAi}
             disabled={suggesting}
-            className="flex items-center gap-2 rounded-lg border border-tertiary/30 bg-tertiary-container px-3 py-1.5 font-body-sm text-body-sm font-semibold text-on-tertiary-container transition-all hover:bg-tertiary-container/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg border border-tertiary/30 bg-tertiary-container px-3 py-1.5 font-body-sm text-body-sm font-semibold text-on-tertiary-container shadow-tertiary transition-all hover:bg-tertiary-fixed disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon name="smart_toy" className="text-[18px]" />
             {suggesting ? "Generating with AI…" : adminCopy.suggestViaAiLabel}
@@ -123,24 +235,23 @@ export function ValidationSelectionCard({
 
       <div className="space-y-6 p-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {toggleStates.map((toggle) => (
+          {PREDEFINED_TOGGLES.map((toggle) => (
             <div
               key={toggle.id}
-              className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-4"
+              className="flex flex-col gap-3 rounded-lg border border-ink/10 bg-surface-container-low p-4"
             >
               <div className="flex items-center gap-2">
-                <Icon name="fact_check" className="text-sm text-secondary" />
+                <Icon name={toggle.icon} className="text-secondary" />
                 <span className="font-body-md text-body-md font-semibold text-on-surface">
                   {toggle.label}
                 </span>
               </div>
-              <span
-                className={`font-label-caps text-label-caps ${
-                  toggle.active ? "text-primary" : "text-on-surface-variant"
-                }`}
-              >
-                {toggle.active ? "ON" : "OFF"}
-              </span>
+              <ToggleSwitch
+                checked={checks[toggle.id]}
+                onChange={(next) => onTogglePredefined?.(toggle.id, next)}
+                label={toggle.label}
+                disabled={!canToggle}
+              />
             </div>
           ))}
         </div>
@@ -149,54 +260,47 @@ export function ValidationSelectionCard({
           Predefined rules applied across fields: {predefinedCount}
         </p>
 
-        <div className="border-t border-white/10 pt-4">
+        <div className="border-t border-ink/15 pt-4">
           <h4 className="mb-4 flex items-center gap-2 font-label-caps text-label-caps text-primary">
-            <Icon name="rule" className="text-sm" />
-            {adminCopy.allRulesTitle}
+            <Icon name="smart_toy" className="text-sm" />
+            {adminCopy.aiRulesTitle}
           </h4>
-          {displayedRules.length === 0 ? (
+          {aiRules.length === 0 ? (
             <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Generate AI rules or add a custom rule to see them here.
+              Generate AI rules to review suggestions here.
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {displayedRules.map((card) => (
-                <div
+              {aiRules.map((card) => (
+                <RuleCard
                   key={card.id}
-                  className="flex items-start justify-between gap-2 rounded-lg border border-white/5 bg-white/5 p-3"
-                >
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-body-md text-body-md font-semibold text-on-surface">
-                        {card.title}
-                      </span>
-                      <SourceBadge source={card.source} />
-                    </div>
-                    <span className="text-[10px] opacity-70">
-                      {card.fieldName} · {card.subtitle}
-                    </span>
-                  </div>
-                  {card.source === "CUSTOM" ? (
-                    <div className="flex shrink-0 items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => onEditCustom?.(card)}
-                        className="rounded-md p-1 text-on-surface-variant transition-colors hover:bg-white/10 hover:text-on-surface"
-                        aria-label="Edit custom rule"
-                      >
-                        <Icon name="edit" className="text-[16px]" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onDeleteCustom?.(card)}
-                        className="rounded-md p-1 text-on-surface-variant transition-colors hover:bg-white/10 hover:text-error"
-                        aria-label="Delete custom rule"
-                      >
-                        <Icon name="delete" className="text-[16px]" />
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
+                  card={card}
+                  onSelectRule={onSelectRule}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-ink/15 pt-4">
+          <h4 className="mb-4 flex items-center gap-2 font-label-caps text-label-caps text-primary">
+            <Icon name="rule" className="text-sm" />
+            {adminCopy.customRulesTitle}
+          </h4>
+          {customRules.length === 0 ? (
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
+              Add a custom rule to see it here.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {customRules.map((card) => (
+                <RuleCard
+                  key={card.id}
+                  card={card}
+                  onSelectRule={onSelectRule}
+                  onEditCustom={onEditCustom}
+                  onDeleteCustom={onDeleteCustom}
+                />
               ))}
             </div>
           )}
@@ -209,11 +313,9 @@ export function ValidationSelectionCard({
         ) : null}
       </div>
 
-      <div className="flex justify-center border-t border-white/5 bg-surface-container-lowest/50 p-3">
+      <div className="flex justify-center border-t border-ink/10 bg-surface-container-low p-3">
         <span className="font-body-sm text-body-sm text-on-surface-variant italic opacity-70">
-          {displayedRules.length > 0
-            ? `${aiCount} AI · ${customCount} custom rule(s)`
-            : "No AI or custom rules yet"}
+          {footerText}
         </span>
       </div>
     </div>

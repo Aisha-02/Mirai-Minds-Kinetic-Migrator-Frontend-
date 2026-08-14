@@ -3,13 +3,13 @@ import { signInCopy } from "@/lib/mock/signin";
 
 export function SignInHeader() {
   return (
-    <div className="flex flex-col items-center gap-2 text-center">
+    <div className="flex flex-col items-center gap-[17px] text-center">
       <Image
         src="/kinetic-logo.png"
         alt={signInCopy.logoAlt}
-        width={500}
-        height={500}
-        className="mb-2 h-48 w-auto"
+        width={411}
+        height={179}
+        className="h-[106px] w-auto rounded-lg"
         priority
       />
       <p className="font-body-md text-body-md text-on-surface-variant">

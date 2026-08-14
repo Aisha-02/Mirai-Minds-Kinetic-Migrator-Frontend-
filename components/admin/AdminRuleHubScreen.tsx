@@ -24,8 +24,11 @@ import {
   deleteCustomValidationRule,
   removeRuleFromDraft,
   saveValidationRules,
+  setPredefinedCheckInDraft,
+  setRuleSelectedInDraft,
   updateCustomValidationRule,
   upsertRuleInDraft,
+  type PredefinedChecks,
 } from "@/lib/api/rules";
 
 export function AdminRuleHubScreen() {
@@ -149,6 +152,7 @@ export function AdminRuleHubScreen() {
       const savedRule = {
         ...result.rule,
         source: "CUSTOM" as const,
+        selected: true,
       };
       setRulesDraft(
         upsertRuleInDraft(
@@ -197,6 +201,24 @@ export function AdminRuleHubScreen() {
         err instanceof Error ? err.message : "Failed to delete custom rule",
       );
     }
+  }
+
+  function handleTogglePredefined(key: keyof PredefinedChecks, enabled: boolean) {
+    setRulesDraft(setPredefinedCheckInDraft(rulesDraft, key, enabled));
+  }
+
+  function handleSelectRule(card: DisplayedRuleCard, selected: boolean) {
+    const ruleId = card.rule.ruleId;
+    if (!ruleId) {
+      setRulesDraft(
+        upsertRuleInDraft(rulesDraft, selectedBusinessObject || "", card.fieldName, {
+          ...card.rule,
+          selected,
+        }),
+      );
+      return;
+    }
+    setRulesDraft(setRuleSelectedInDraft(rulesDraft, ruleId, selected, card.fieldName));
   }
 
   return (
@@ -282,8 +304,8 @@ export function AdminRuleHubScreen() {
               />
             </div>
             <div className="col-span-12">
-              <div className="flex flex-col overflow-hidden rounded-xl border border-white/10 bg-surface/60 backdrop-blur-[20px]">
-                <div className="border-b border-white/5 bg-white/[0.02] p-5">
+              <div className="flex flex-col overflow-hidden rounded-xl border border-ink/10 bg-surface shadow-card">
+                <div className="border-b border-ink/10 bg-surface-container-low p-5">
                   <h3 className="font-headline-sm text-headline-sm text-on-surface">
                     Schema Mapping
                   </h3>
@@ -322,6 +344,8 @@ export function AdminRuleHubScreen() {
                 onDeleteCustom={(card) => {
                   void handleDeleteCustom(card);
                 }}
+                onTogglePredefined={handleTogglePredefined}
+                onSelectRule={handleSelectRule}
                 onSuggestAi={() => {
                   setAssistantOpen(true);
                   void generateRules();

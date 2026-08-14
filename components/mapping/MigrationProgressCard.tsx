@@ -59,7 +59,7 @@ export function MigrationProgressCard({
               cy="50"
               fill="none"
               r="45"
-              stroke="rgba(255,255,255,0.1)"
+              stroke="rgba(15,26,42,0.1)"
               strokeWidth="10"
             />
             <circle
@@ -68,7 +68,7 @@ export function MigrationProgressCard({
               cy="50"
               fill="none"
               r="45"
-              stroke="#90cdff"
+              stroke="var(--color-primary)"
               strokeDasharray={GAUGE_CIRCUMFERENCE}
               strokeDashoffset={gaugeOffset}
               strokeWidth="10"

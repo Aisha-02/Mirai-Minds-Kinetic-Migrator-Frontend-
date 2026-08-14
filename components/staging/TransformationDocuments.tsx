@@ -73,7 +73,7 @@ export function TransformationDocuments() {
       <div className="mb-6 flex items-center justify-between border-b border-outline-variant pb-4">
         <div className="flex items-center gap-3">
           <Icon name="tune" className="text-tertiary" />
-          <h3 className="font-headline-md text-headline-md text-white">
+          <h3 className="font-headline-md text-headline-md text-on-surface">
             {stagingCopy.documentsTitle}
           </h3>
         </div>
@@ -119,7 +119,7 @@ export function TransformationDocuments() {
                   className="shrink-0 text-[20px] text-on-surface"
                 />
                 <div className="min-w-0">
-                  <span className="block truncate font-headline-sm text-headline-sm text-white">
+                  <span className="block truncate font-headline-sm text-headline-sm text-on-surface">
                     {doc.label}
                   </span>
                   <span className="mt-0.5 block truncate font-body-sm text-body-sm text-on-surface-variant">

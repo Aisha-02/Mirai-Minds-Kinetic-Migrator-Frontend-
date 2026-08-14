@@ -26,7 +26,7 @@ const emptyForm: CustomRuleFormValues = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 font-body-sm text-body-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant/60 focus:border-primary";
+  "w-full rounded-lg border border-ink/15 bg-ink/5 px-3 py-2 font-body-sm text-body-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant/60 focus:border-primary";
 
 export function CustomValidationRuleDialog({
   open,
@@ -59,9 +59,9 @@ export function CustomValidationRuleDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-6 backdrop-blur-sm">
-      <div className="flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-white/10 bg-surface shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-5 py-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/25 p-6 backdrop-blur-sm">
+      <div className="flex w-full max-w-lg flex-col overflow-hidden rounded-xl border border-ink/10 bg-surface shadow-overlay">
+        <div className="flex items-center justify-between border-b border-ink/10 bg-surface-container-low px-5 py-4">
           <div>
             <h3 className="font-headline-sm text-headline-sm text-on-surface">
               {isEdit ? "Edit Custom Rule" : adminCopy.addCustomRuleLabel}
@@ -73,7 +73,7 @@ export function CustomValidationRuleDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-on-surface-variant transition-colors hover:bg-white/10 hover:text-on-surface"
+            className="rounded-lg p-1 text-on-surface-variant transition-colors hover:bg-ink/10 hover:text-on-surface"
             aria-label="Close"
           >
             <Icon name="close" />
@@ -142,7 +142,7 @@ export function CustomValidationRuleDialog({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 font-body-sm text-body-sm text-on-surface-variant transition-colors hover:bg-white/10"
+              className="rounded-lg px-4 py-2 font-body-sm text-body-sm text-on-surface-variant transition-colors hover:bg-ink/10"
             >
               Cancel
             </button>

@@ -17,11 +17,11 @@ export function PreviewTablePane({ pane, visible }: PreviewTablePaneProps) {
     <div
       className={`${
         visible ? "flex" : "hidden"
-      } absolute inset-0 flex-col overflow-hidden rounded-xl border border-white/5 bg-surface-container`}
+      } absolute inset-0 flex-col overflow-hidden rounded-xl border border-ink/10 bg-surface-container`}
       id={`${pane.id}-pane`}
     >
       <div
-        className={`flex shrink-0 items-center justify-between border-b border-white/5 px-4 py-3 ${
+        className={`flex shrink-0 items-center justify-between border-b border-ink/10 px-4 py-3 ${
           pane.badge.tone === "mapped"
             ? "relative overflow-hidden bg-surface-container-highest"
             : "bg-surface-container-highest"
@@ -46,7 +46,7 @@ export function PreviewTablePane({ pane, visible }: PreviewTablePaneProps) {
             {pane.badge.label}
           </span>
         ) : (
-          <span className="rounded border border-white/5 bg-surface-dim px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
+          <span className="rounded border border-ink/10 bg-surface-dim px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
             {pane.badge.label}
           </span>
         )}
@@ -57,7 +57,7 @@ export function PreviewTablePane({ pane, visible }: PreviewTablePaneProps) {
           <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-tertiary" />
         ) : null}
         <table className="w-full border-collapse text-left">
-          <thead className="sticky top-0 z-10 border-b border-white/10 bg-surface-container">
+          <thead className="sticky top-0 z-10 border-b border-ink/10 bg-surface-container-highest">
             <tr>
               {pane.columns.map((column) => (
                 <th
@@ -73,7 +73,7 @@ export function PreviewTablePane({ pane, visible }: PreviewTablePaneProps) {
             {pane.rows.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-white/5 transition-colors hover:bg-white/5"
+                className="border-b border-ink/10 transition-colors hover:bg-ink/5"
               >
                 {row.cells.map((cell, index) => (
                   <td

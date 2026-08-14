@@ -17,9 +17,9 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   const base =
     "flex items-center gap-3 rounded-DEFAULT px-3 py-2 font-body-md text-body-md transition-colors duration-200 ease-in-out";
   const activeClass =
-    "border-r-2 border-primary bg-white/5 font-bold text-primary";
+    "border-r-2 border-primary bg-primary/10 font-bold text-primary";
   const inactiveClass =
-    "font-medium text-on-surface-variant hover:bg-white/5";
+    "font-medium text-on-surface-variant hover:bg-ink/5 hover:text-on-surface";
 
   return (
     <Link
@@ -35,7 +35,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
 
 export function SideNav({ activeKey }: SideNavProps) {
   return (
-    <nav className="fixed top-0 left-0 z-40 flex h-screen w-sidebar-width flex-col border-r border-white/10 bg-surface/60 px-4 py-6 shadow-none backdrop-blur-[20px]">
+    <nav className="fixed top-0 left-0 z-40 flex h-screen w-sidebar-width flex-col border-r border-ink/10 bg-surface/85 px-4 py-6 backdrop-blur-[20px]">
       <div className="mb-10 flex items-center gap-3 px-2">
         <Image
           src="/workspace-logo.png"
@@ -65,7 +65,7 @@ export function SideNav({ activeKey }: SideNavProps) {
         ))}
       </div>
 
-      <div className="mt-auto space-y-1 border-t border-white/10 pt-6">
+      <div className="mt-auto space-y-1 border-t border-ink/10 pt-6">
         {workspaceNavSecondary.map((item) => (
           <NavLink
             key={item.key}

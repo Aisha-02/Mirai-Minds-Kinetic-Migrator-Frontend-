@@ -10,9 +10,9 @@ type ButtonProps = {
 
 const variantClasses: Record<ButtonVariant, string> = {
   brand:
-    "bg-brand-blue text-white shadow-[0_0_10px_rgba(0,143,211,0.2)] hover:bg-opacity-90",
+    "bg-brand-blue text-white shadow-primary hover:bg-primary-fixed hover:shadow-card-hover",
   primary:
-    "bg-primary-container text-white shadow-[0_0_10px_rgba(32,152,221,0.2)] hover:bg-primary",
+    "bg-primary-container text-on-primary-container shadow-primary hover:bg-primary-fixed hover:shadow-card-hover",
 };
 
 export function Button({

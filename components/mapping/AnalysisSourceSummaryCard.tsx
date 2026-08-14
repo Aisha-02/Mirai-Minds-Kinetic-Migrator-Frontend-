@@ -25,7 +25,7 @@ export function AnalysisSourceSummaryCard({
         </p>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-white/5 bg-white/5 p-4">
+        <div className="rounded-lg border border-ink/10 bg-ink/[0.03] p-4">
           <div className="font-label-caps text-label-caps text-on-surface-variant">
             File
           </div>
@@ -33,7 +33,7 @@ export function AnalysisSourceSummaryCard({
             {fileName ?? "—"}
           </div>
         </div>
-        <div className="rounded-lg border border-white/5 bg-white/5 p-4">
+        <div className="rounded-lg border border-ink/10 bg-ink/[0.03] p-4">
           <div className="font-label-caps text-label-caps text-on-surface-variant">
             Business Object
           </div>
@@ -41,7 +41,7 @@ export function AnalysisSourceSummaryCard({
             {businessObjectLabel}
           </div>
         </div>
-        <div className="rounded-lg border border-white/5 bg-white/5 p-4">
+        <div className="rounded-lg border border-ink/10 bg-ink/[0.03] p-4">
           <div className="font-label-caps text-label-caps text-on-surface-variant">
             Mapped Fields
           </div>

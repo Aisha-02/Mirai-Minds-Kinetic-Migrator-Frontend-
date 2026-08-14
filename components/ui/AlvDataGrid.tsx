@@ -209,7 +209,7 @@ export function AlvDataGrid<T extends Record<string, unknown>>({
                       <button
                         type="button"
                         onClick={() => toggleSort(column.key)}
-                        className="inline-flex items-center gap-1 transition-colors hover:text-white"
+                        className="inline-flex items-center gap-1 transition-colors hover:text-primary"
                       >
                         {column.label}
                         <Icon
@@ -332,7 +332,7 @@ export function AlvDataGrid<T extends Record<string, unknown>>({
             type="button"
             disabled={safePage <= 0}
             onClick={() => setPage(Math.max(0, safePage - 1))}
-            className="rounded p-1 text-on-surface hover:bg-surface-container-highest disabled:opacity-50"
+            className="rounded p-1 text-on-surface-variant hover:bg-surface-container-highest hover:text-primary disabled:opacity-50"
             aria-label="Previous page"
           >
             <Icon name="chevron_left" />
@@ -341,7 +341,7 @@ export function AlvDataGrid<T extends Record<string, unknown>>({
             type="button"
             disabled={safePage >= pageCount - 1}
             onClick={() => setPage(Math.min(pageCount - 1, safePage + 1))}
-            className="rounded p-1 text-white hover:bg-surface-container-highest disabled:opacity-50"
+            className="rounded p-1 text-on-surface-variant hover:bg-surface-container-highest hover:text-primary disabled:opacity-50"
             aria-label="Next page"
           >
             <Icon name="chevron_right" />

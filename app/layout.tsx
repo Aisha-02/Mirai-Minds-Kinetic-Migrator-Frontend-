@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} dark h-full antialiased`}
+      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
       <head>
         <link

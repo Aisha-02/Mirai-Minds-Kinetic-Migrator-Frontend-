@@ -29,7 +29,7 @@ export function SourceDataUpload({
         {validationCopy.sourceTitle}
       </h3>
       <div
-        className={`drop-zone flex cursor-pointer flex-col items-center justify-center rounded-lg bg-surface-container-lowest/50 px-6 py-12 text-center transition-colors hover:bg-surface-container-low ${
+        className={`drop-zone flex cursor-pointer flex-col items-center justify-center rounded-lg bg-surface-container-low px-6 py-12 text-center transition-colors hover:bg-primary/5 ${
           dragging ? "dragover" : ""
         } ${disabled ? "pointer-events-none opacity-60" : ""}`}
         onClick={() => inputRef.current?.click()}
@@ -71,7 +71,7 @@ export function SourceDataUpload({
         </p>
         <button
           type="button"
-          className="rounded border border-white/10 bg-surface-bright px-4 py-2 text-sm font-medium text-on-surface transition-colors hover:bg-white/5"
+          className="rounded border border-ink/15 bg-surface px-4 py-2 text-sm font-medium text-on-surface shadow-card transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
           onClick={(event) => {
             event.stopPropagation();
             inputRef.current?.click();
@@ -81,7 +81,7 @@ export function SourceDataUpload({
         </button>
         <input
           ref={inputRef}
-          accept=".csv,.xlsx"
+          accept=".csv,.xlsx,.json"
           className="hidden"
           type="file"
           disabled={disabled}

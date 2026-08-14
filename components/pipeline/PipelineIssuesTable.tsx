@@ -42,7 +42,7 @@ const columns: AlvColumn<IssueRow>[] = [
     label: "Category",
     filter: "select",
     render: (value) => (
-      <span className="font-medium text-white">{String(value ?? "")}</span>
+      <span className="font-medium text-on-surface">{String(value ?? "")}</span>
     ),
   },
   {
@@ -60,7 +60,7 @@ const columns: AlvColumn<IssueRow>[] = [
     filter: "text",
     align: "right",
     render: (value) => (
-      <span className="font-mono-data text-mono-data font-bold text-white">
+      <span className="font-mono-data text-mono-data font-bold text-on-surface">
         {String(value ?? "")}
       </span>
     ),
@@ -102,7 +102,7 @@ export function PipelineIssuesTable({
   return (
     <div className="flex flex-col rounded-xl border border-outline-variant bg-surface-container">
       <div className="flex flex-col gap-4 border-b border-outline-variant bg-surface-container-high p-6 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-headline-sm text-headline-sm font-bold text-white">
+        <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
           {pipelineCopy.issuesTitle}
         </h3>
         <div className="flex flex-wrap items-center gap-2">
@@ -123,7 +123,7 @@ export function PipelineIssuesTable({
           <button
             type="button"
             onClick={showAll}
-            className="flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-highest px-3 py-1.5 font-label-caps text-label-caps text-white transition-colors hover:bg-surface-bright"
+            className="flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-highest px-3 py-1.5 font-label-caps text-label-caps text-on-surface transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
           >
             <Icon name="filter_list" className="text-[14px]" />
             {pipelineCopy.filterAllLabel}
@@ -131,7 +131,7 @@ export function PipelineIssuesTable({
           <button
             type="button"
             onClick={showCriticalOnly}
-            className="flex items-center gap-1 rounded-full border border-error bg-surface-container-highest px-3 py-1.5 font-label-caps text-label-caps text-error transition-colors hover:bg-surface-bright"
+            className="flex items-center gap-1 rounded-full border border-error/40 bg-surface-container-highest px-3 py-1.5 font-label-caps text-label-caps text-error transition-colors hover:border-error hover:bg-error/10"
           >
             {pipelineCopy.filterCriticalLabel}
           </button>

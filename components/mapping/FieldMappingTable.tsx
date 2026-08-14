@@ -37,7 +37,7 @@ function MappingRow({ row }: { row: SchemaFieldMapping }) {
 
   return (
     <tr
-      className={`table-row-border transition-colors hover:bg-white/5 ${
+      className={`table-row-border transition-colors hover:bg-ink/5 ${
         lowConfidence ? "border-l-2 border-l-error bg-error-container/10" : ""
       }`}
     >
@@ -112,7 +112,7 @@ export function FieldMappingTable({
 
   return (
     <div className="mapping-glass flex min-h-[500px] flex-1 flex-col overflow-hidden rounded-xl">
-      <div className="flex flex-col justify-between gap-4 border-b border-white/5 bg-surface/20 p-5 lg:flex-row lg:items-center">
+      <div className="flex flex-col justify-between gap-4 border-b border-ink/10 bg-surface-container-low p-5 lg:flex-row lg:items-center">
         <div>
           <h2 className="font-headline-sm text-headline-sm text-on-surface">
             {mappingCopy.tableTitle}
@@ -156,7 +156,7 @@ export function FieldMappingTable({
           </div>
         ) : (
           <table className="w-full border-collapse text-left">
-            <thead className="sticky top-0 z-10 border-b border-white/10 bg-surface-container-high/90 shadow-sm backdrop-blur-md">
+            <thead className="sticky top-0 z-10 border-b border-ink/10 bg-surface-container-high/95 shadow-sm backdrop-blur-md">
               <tr>
                 <th className="w-1/4 px-5 py-3 font-label-caps text-label-caps text-on-surface-variant uppercase">
                   {mappingCopy.colSource}

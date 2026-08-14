@@ -27,7 +27,7 @@ export function AdminSideNav({ activeKey }: AdminSideNavProps) {
   }, []);
 
   return (
-    <nav className="fixed top-0 left-0 z-50 flex h-screen w-sidebar-width flex-col border-r border-white/10 bg-surface/60 px-4 py-6 shadow-none backdrop-blur-[20px]">
+    <nav className="fixed top-0 left-0 z-50 flex h-screen w-sidebar-width flex-col border-r border-ink/10 bg-surface/85 px-4 py-6 backdrop-blur-[20px]">
       <div className="mb-8 flex items-center gap-3 px-2">
         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-primary/30 bg-primary-container/20">
           <Image
@@ -58,8 +58,8 @@ export function AdminSideNav({ activeKey }: AdminSideNavProps) {
               href={item.href}
               className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors duration-200 ease-in-out ${
                 active
-                  ? "border-r-2 border-primary bg-white/5 font-bold text-primary"
-                  : "font-medium text-on-surface-variant hover:bg-white/5"
+                  ? "border-r-2 border-primary bg-primary/10 font-bold text-primary"
+                  : "font-medium text-on-surface-variant hover:bg-ink/5 hover:text-on-surface"
               }`}
               aria-current={active ? "page" : undefined}
             >
@@ -70,12 +70,12 @@ export function AdminSideNav({ activeKey }: AdminSideNavProps) {
         })}
       </div>
 
-      <div className="mt-auto flex flex-col gap-1 border-t border-white/10 pt-4">
+      <div className="mt-auto flex flex-col gap-1 border-t border-ink/10 pt-4">
         {adminNavSecondary.map((item) => (
           <Link
             key={item.key}
             href={item.href}
-            className="flex items-center gap-3 rounded-lg px-4 py-2 font-medium text-on-surface-variant transition-colors duration-200 ease-in-out hover:bg-white/5"
+            className="flex items-center gap-3 rounded-lg px-4 py-2 font-medium text-on-surface-variant transition-colors duration-200 ease-in-out hover:bg-ink/5 hover:text-on-surface"
           >
             <Icon name={item.icon} />
             <span className="font-body-sm text-body-sm">{item.label}</span>
